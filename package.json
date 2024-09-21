@@ -2,16 +2,21 @@
   "name": "translation-tool",
   "version": "1.0.0",
   "description": "CLI tool for translating i18next locale files using AI",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "check": "biome check --apply ."
   },
   "keywords": ["i18next", "translation", "cli", "ai"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
     "jest": "^29.7.0",
@@ -21,5 +26,9 @@
   "dependencies": {
     "cmd-ts": "^0.13.0",
     "i18next": "^23.7.11"
-  }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@8.6.0"
 }
