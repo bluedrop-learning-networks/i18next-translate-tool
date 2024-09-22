@@ -47,20 +47,20 @@ export function identifyUntranslatedStrings(json: I18nextJson): string[] {
   return untranslated;
 }
 
-export function mergeI18nextJson(source: I18nextJson, target: I18nextJson): I18nextJson {
-  const merged: I18nextJson = {};
+export function synchronizeI18nextJson(source: I18nextJson, target: I18nextJson): I18nextJson {
+  const synchronized: I18nextJson = {};
 
-  function merge(src: I18nextJson, tgt: I18nextJson, result: I18nextJson) {
+  function synchronize(src: I18nextJson, tgt: I18nextJson, result: I18nextJson) {
     for (const [key, value] of Object.entries(src)) {
       if (typeof value === 'object' && value !== null) {
         result[key] = {};
-        merge(value, (tgt[key] as I18nextJson) || {}, result[key] as I18nextJson);
+        synchronize(value, (tgt[key] as I18nextJson) || {}, result[key] as I18nextJson);
       } else {
         result[key] = key in tgt ? tgt[key] : '';
       }
     }
   }
 
-  merge(source, target, merged);
-  return merged;
+  synchronize(source, target, synchronized);
+  return synchronized;
 }

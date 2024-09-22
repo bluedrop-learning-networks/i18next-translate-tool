@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { readI18nextJson, writeI18nextJson, identifyUntranslatedStrings, mergeI18nextJson } from './i18next';
+import { readI18nextJson, writeI18nextJson, identifyUntranslatedStrings, synchronizeI18nextJson } from './i18next';
 
 const testDir = path.join(process.cwd(), 'test-files');
 
@@ -64,8 +64,8 @@ test('i18next functions', async (t) => {
     assert.deepStrictEqual(result, ['key2', 'nested.key4']);
   });
 
-  await t.test('mergeI18nextJson', async (t) => {
-    await t.test('should merge source into target, setting new keys to empty string', () => {
+  await t.test('synchronizeI18nextJson', async (t) => {
+    await t.test('should synchronize target with source structure, keeping existing translations and setting new keys to empty string', () => {
       const source = {
         key1: 'source1',
         key2: 'source2',
@@ -82,7 +82,7 @@ test('i18next functions', async (t) => {
         extraKey: 'extra',
       };
 
-      const result = mergeI18nextJson(source, target);
+      const result = synchronizeI18nextJson(source, target);
       assert.deepStrictEqual(result, {
         key1: 'target1',
         key2: '',
@@ -93,7 +93,7 @@ test('i18next functions', async (t) => {
       });
     });
 
-    await t.test('should delete keys in target that do not exist in source', () => {
+    await t.test('should remove keys in target that do not exist in source', () => {
       const source = {
         key1: 'source1',
         nested: {
@@ -112,7 +112,7 @@ test('i18next functions', async (t) => {
         },
       };
 
-      const result = mergeI18nextJson(source, target);
+      const result = synchronizeI18nextJson(source, target);
       assert.deepStrictEqual(result, {
         key1: 'target1',
         nested: {
