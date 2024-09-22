@@ -37,6 +37,16 @@ test('i18next functions', async (t) => {
     assert.strictEqual(writtenData, JSON.stringify(data, null, 2));
   });
 
+  // Add a new test for error handling
+  await t.test('writeI18nextJson should throw on error', async () => {
+    mockFs.writeFile = async () => { throw new Error('Write error'); };
+
+    await assert.rejects(
+      async () => await writeI18nextJson('test.json', { key: 'value' }),
+      { message: 'Write error' }
+    );
+  });
+
   await t.test('identifyUntranslatedStrings', () => {
     const json = {
       key1: 'translated',

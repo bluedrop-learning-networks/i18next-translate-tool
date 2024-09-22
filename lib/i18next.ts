@@ -14,16 +14,22 @@ export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
     const data = await fs.readFile(filePath, 'utf8');
     return JSON.parse(data) as I18nextJson;
   } catch (error) {
-    console.error(`Error reading file ${filePath}:`, error);
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      console.warn(`File not found: ${filePath}`);
+    } else {
+      console.error(`Error reading file ${filePath}:`, error);
+    }
     return {};
   }
 }
 
 export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<void> {
   try {
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+    const jsonString = JSON.stringify(data, null, 2);
+    await fs.writeFile(filePath, jsonString, 'utf8');
   } catch (error) {
     console.error(`Error writing file ${filePath}:`, error);
+    throw error; // Re-throw the error to allow proper error handling in the calling code
   }
 }
 
