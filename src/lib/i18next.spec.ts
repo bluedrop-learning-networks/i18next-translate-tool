@@ -51,7 +51,15 @@ test('i18next functions', async (t) => {
   });
 
   await t.test('identifyUntranslatedStrings', () => {
-    const json = {
+    const source = {
+      key1: 'translated',
+      key2: 'to translate',
+      nested: {
+        key3: 'translated',
+        key4: 'also to translate',
+      },
+    };
+    const target = {
       key1: 'translated',
       key2: '',
       nested: {
@@ -60,8 +68,11 @@ test('i18next functions', async (t) => {
       },
     };
 
-    const result = identifyUntranslatedStrings(json);
-    assert.deepStrictEqual(result, ['key2', 'nested.key4']);
+    const result = identifyUntranslatedStrings(source, target);
+    assert.deepStrictEqual(result, {
+      'to translate': ['key2'],
+      'also to translate': ['nested', 'key4']
+    });
   });
 
   await t.test('synchronizeI18nextJson', async (t) => {

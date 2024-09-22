@@ -29,8 +29,8 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
   }
 }
 
-export function identifyUntranslatedStrings(source: I18nextJson, target: I18nextJson): Record<string, string> {
-  const untranslated: Record<string, string> = {};
+export function identifyUntranslatedStrings(source: I18nextJson, target: I18nextJson): Record<string, string[]> {
+  const untranslated: Record<string, string[]> = {};
 
   function traverse(sourceObj: I18nextJson, targetObj: I18nextJson, path: string[] = []) {
     for (const [key, sourceValue] of Object.entries(sourceObj)) {
@@ -39,7 +39,7 @@ export function identifyUntranslatedStrings(source: I18nextJson, target: I18next
 
       if (typeof sourceValue === 'string') {
         if (!(key in targetObj) || typeof targetValue !== 'string' || targetValue.trim() === '') {
-          untranslated[sourceValue] = currentPath.join('.');
+          untranslated[sourceValue] = currentPath;
         }
       } else if (typeof sourceValue === 'object' && sourceValue !== null) {
         if (typeof targetValue !== 'object' || targetValue === null) {
