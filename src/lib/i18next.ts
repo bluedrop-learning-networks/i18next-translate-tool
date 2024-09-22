@@ -29,21 +29,29 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
   }
 }
 
-export function identifyUntranslatedStrings(json: I18nextJson): string[] {
-  const untranslated: string[] = [];
+export function identifyUntranslatedStrings(source: I18nextJson, target: I18nextJson): Record<string, string> {
+  const untranslated: Record<string, string> = {};
 
-  function traverse(obj: I18nextJson, prefix: string = '') {
-    for (const [key, value] of Object.entries(obj)) {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === 'string' && value.trim() === '') {
-        untranslated.push(fullKey);
-      } else if (typeof value === 'object' && value !== null) {
-        traverse(value, fullKey);
+  function traverse(sourceObj: I18nextJson, targetObj: I18nextJson, path: string[] = []) {
+    for (const [key, sourceValue] of Object.entries(sourceObj)) {
+      const currentPath = [...path, key];
+      const targetValue = targetObj[key];
+
+      if (typeof sourceValue === 'string') {
+        if (!(key in targetObj) || typeof targetValue !== 'string' || targetValue.trim() === '') {
+          untranslated[sourceValue] = currentPath.join('.');
+        }
+      } else if (typeof sourceValue === 'object' && sourceValue !== null) {
+        if (typeof targetValue !== 'object' || targetValue === null) {
+          traverse(sourceValue, {}, currentPath);
+        } else {
+          traverse(sourceValue, targetValue, currentPath);
+        }
       }
     }
   }
 
-  traverse(json);
+  traverse(source, target);
   return untranslated;
 }
 
