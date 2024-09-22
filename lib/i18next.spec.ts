@@ -1,55 +1,52 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { readI18nextJson, writeI18nextJson, identifyUntranslatedStrings, mergeI18nextJson } from './i18next';
-import fs from 'fs/promises';
 
-// Mock fs.promises
-const mockFs = {
-  readFile: async (path: string, encoding: string) => '',
-  writeFile: async (path: string, data: string, encoding: string) => {},
-};
+const testDir = path.join(process.cwd(), 'test-files');
 
 test('i18next functions', async (t) => {
+  // Setup: Create test directory
+  await fs.mkdir(testDir, { recursive: true });
+
   await t.test('readI18nextJson', async (t) => {
     await t.test('should read and parse JSON file', async () => {
-      const mockData = JSON.stringify({ key: 'value' });
-      mockFs.readFile = async () => mockData;
+      const testFile = path.join(testDir, 'test-read.json');
+      const testData = { key: 'value' };
+      await fs.writeFile(testFile, JSON.stringify(testData), 'utf8');
 
-      const result = await readI18nextJson('test.json');
-      assert.deepStrictEqual(result, { key: 'value' });
+      const result = await readI18nextJson(testFile);
+      assert.deepStrictEqual(result, testData);
+
+      // Cleanup
+      await fs.unlink(testFile);
     });
 
     await t.test('should return empty object on error', async () => {
-      mockFs.readFile = async () => { throw new Error('File not found'); };
-
       const result = await readI18nextJson('nonexistent.json');
       assert.deepStrictEqual(result, {});
     });
   });
 
   await t.test('writeI18nextJson', async () => {
-    let writtenData: string | undefined;
-    let writtenPath: string | undefined;
-    mockFs.writeFile = async (path, data) => { 
-      writtenPath = path;
-      writtenData = data;
-    };
-
+    const testFile = path.join(testDir, 'test-write.json');
     const data = { key: 'value' };
-    const result = await writeI18nextJson('test.json', data);
+    const result = await writeI18nextJson(testFile, data);
 
-    assert.strictEqual(result, 'test.json');
-    assert.strictEqual(writtenPath, 'test.json');
+    assert.strictEqual(result, testFile);
+    const writtenData = await fs.readFile(testFile, 'utf8');
     assert.strictEqual(writtenData, JSON.stringify(data, null, 2));
+
+    // Cleanup
+    await fs.unlink(testFile);
   });
 
-  // Update the error handling test
   await t.test('writeI18nextJson should throw on error', async () => {
-    mockFs.writeFile = async () => { throw new Error('Write error'); };
-
+    const invalidFile = path.join(testDir, 'invalid-dir', 'test.json');
     await assert.rejects(
-      async () => await writeI18nextJson('test.json', { key: 'value' }),
-      { message: 'Write error' }
+      async () => await writeI18nextJson(invalidFile, { key: 'value' }),
+      { code: 'ENOENT' }
     );
   });
 

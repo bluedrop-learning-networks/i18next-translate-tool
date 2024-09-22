@@ -1,10 +1,4 @@
-import * as fs from 'fs/promises';
-
-// For testing purposes
-let fsModule = fs;
-export const setFsMock = (mock: typeof fs) => {
-  fsModule = mock;
-};
+import { promises as fs } from 'node:fs';
 
 interface I18nextJson {
   [key: string]: string | I18nextJson;
@@ -12,7 +6,7 @@ interface I18nextJson {
 
 export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
   try {
-    const data = await fsModule.readFile(filePath, 'utf8');
+    const data = await fs.readFile(filePath, 'utf8');
     return JSON.parse(data) as I18nextJson;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -27,11 +21,11 @@ export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
 export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<string> {
   try {
     const jsonString = JSON.stringify(data, null, 2);
-    await fsModule.writeFile(filePath, jsonString, 'utf8');
+    await fs.writeFile(filePath, jsonString, 'utf8');
     return filePath;
   } catch (error) {
     console.error(`Error writing file ${filePath}:`, error);
-    throw error; // Re-throw the error to allow proper error handling in the calling code
+    throw error;
   }
 }
 
