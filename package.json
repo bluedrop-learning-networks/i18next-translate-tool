@@ -7,23 +7,29 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "tsx --test src/**/*.spec.ts",
+    "test": "tsx --test 'src/**/*.spec.ts'",
     "lint": "biome lint .",
     "format": "biome format . --write",
     "check": "biome check --apply ."
   },
-  "keywords": ["i18next", "translation", "cli", "ai"],
+  "keywords": [
+    "i18next",
+    "translation",
+    "cli",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
-    "@types/node": "^20.10.5",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "@types/node": "^22.5.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "cmd-ts": "^0.13.0",
-    "i18next": "^23.7.11"
+    "i18next": "^23.15.1",
+    "node": "^22.9.0"
   },
   "engines": {
     "node": ">=20.0.0"
