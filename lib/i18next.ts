@@ -24,10 +24,11 @@ export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
   }
 }
 
-export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<void> {
+export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<string> {
   try {
     const jsonString = JSON.stringify(data, null, 2);
     await fsModule.writeFile(filePath, jsonString, 'utf8');
+    return filePath;
   } catch (error) {
     console.error(`Error writing file ${filePath}:`, error);
     throw error; // Re-throw the error to allow proper error handling in the calling code

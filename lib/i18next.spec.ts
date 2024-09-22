@@ -36,18 +36,19 @@ test('i18next functions', async (t) => {
     };
 
     const data = { key: 'value' };
-    await writeI18nextJson('test.json', data);
+    const result = await writeI18nextJson('test.json', data);
 
+    assert.strictEqual(result, 'test.json');
     assert.strictEqual(writtenPath, 'test.json');
     assert.strictEqual(writtenData, JSON.stringify(data, null, 2));
   });
 
-  // Add a new test for error handling
+  // Update the error handling test
   await t.test('writeI18nextJson should throw on error', async () => {
     mockFs.writeFile = async () => { throw new Error('Write error'); };
 
     await assert.rejects(
-      () => writeI18nextJson('test.json', { key: 'value' }),
+      async () => await writeI18nextJson('test.json', { key: 'value' }),
       { message: 'Write error' }
     );
   });
