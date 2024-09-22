@@ -1,37 +1,40 @@
-import type { I18NextJson } from './i18next';
+import { translateKeys } from '../src/lib/openai';
 
-type TranslationFunction = (
-	text: string,
-	sourceLanguage: string,
-	targetLanguage: string
-) => Promise<string>;
+export async function translate(
+  source: Record<string, any>,
+  sourceLanguage: string,
+  targetLanguage: string,
+  target?: Record<string, any>
+): Promise<Record<string, any>> {
+  const result: Record<string, any> = {};
 
-export async function translateI18NextJson(
-	sourceJson: I18NextJson,
-	sourceLanguage: string,
-	targetLanguage: string,
-	translateFn: TranslationFunction
-): Promise<I18NextJson> {
-	const targetJson: I18NextJson = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value === 'object' && value !== null) {
+      result[key] = await translate(value, sourceLanguage, targetLanguage, target?.[key]);
+    } else if (typeof value === 'string') {
+      const translatedKeys = await translateKeys(sourceLanguage, targetLanguage, { [key]: value });
+      result[key] = translatedKeys[key];
+    } else {
+      result[key] = value;
+    }
+  }
 
-	for (const [key, value] of Object.entries(sourceJson)) {
-		if (typeof value === 'string') {
-			targetJson[key] = await translateFn(value, sourceLanguage, targetLanguage);
-		} else if (typeof value === 'object' && value !== null) {
-			targetJson[key] = await translateI18NextJson(
-				value,
-				sourceLanguage,
-				targetLanguage,
-				translateFn
-			);
-		} else {
-			targetJson[key] = value;
-		}
-	}
+  if (target) {
+    for (const [key, value] of Object.entries(target)) {
+      if (key in source) {
+        if (typeof value === 'string') {
+          result[key] = value;
+        }
+      } else {
+        delete result[key];
+      }
+    }
+  }
 
-	return targetJson;
+  return result;
 }
 
+// Keep the existing functions
 export function createTranslationPrompt(
 	text: string,
 	sourceLanguage: string,
@@ -44,7 +47,6 @@ export function createTranslationPrompt(
 Translated text:`;
 }
 
-// Example LLM translation function (to be replaced with actual implementation)
 export async function dummyTranslate(
 	text: string,
 	sourceLanguage: string,
