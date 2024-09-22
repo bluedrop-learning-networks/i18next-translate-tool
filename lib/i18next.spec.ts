@@ -29,11 +29,16 @@ test('i18next functions', async (t) => {
 
   await t.test('writeI18nextJson', async () => {
     let writtenData: string | undefined;
-    mockFs.writeFile = async (path, data) => { writtenData = data; };
+    let writtenPath: string | undefined;
+    mockFs.writeFile = async (path, data) => { 
+      writtenPath = path;
+      writtenData = data;
+    };
 
     const data = { key: 'value' };
     await writeI18nextJson('test.json', data);
 
+    assert.strictEqual(writtenPath, 'test.json');
     assert.strictEqual(writtenData, JSON.stringify(data, null, 2));
   });
 
@@ -42,7 +47,7 @@ test('i18next functions', async (t) => {
     mockFs.writeFile = async () => { throw new Error('Write error'); };
 
     await assert.rejects(
-      async () => await writeI18nextJson('test.json', { key: 'value' }),
+      () => writeI18nextJson('test.json', { key: 'value' }),
       { message: 'Write error' }
     );
   });
