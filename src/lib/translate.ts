@@ -1,5 +1,5 @@
 import { translateKeys } from './openai';
-import { synchronizeI18nextJson } from './i18next';
+import { synchronizeI18nextJson, identifyUntranslatedStrings } from './i18next';
 
 export async function translate(
   source: Record<string, any>,
@@ -10,21 +10,14 @@ export async function translate(
   // Synchronize the target with the source structure
   const synchronizedTarget = target ? synchronizeI18nextJson(source, target) : {};
 
-  // Collect all string values that need translation
+  // Identify untranslated strings
+  const untranslatedStrings = identifyUntranslatedStrings(source, synchronizedTarget);
+
+  // Prepare strings for translation
   const toTranslate: Record<string, string> = {};
-  const collectStrings = (obj: Record<string, any>, path: string[] = []) => {
-    for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === 'string') {
-        const fullPath = [...path, key].join('.');
-        if (!target || !synchronizedTarget[fullPath]) {
-          toTranslate[fullPath] = value;
-        }
-      } else if (typeof value === 'object' && value !== null) {
-        collectStrings(value, [...path, key]);
-      }
-    }
-  };
-  collectStrings(source);
+  for (const [sourceString, paths] of Object.entries(untranslatedStrings)) {
+    toTranslate[paths.join('.')] = sourceString;
+  }
 
   // Translate all collected strings
   const translatedStrings = await translateKeys(sourceLanguage, targetLanguage, toTranslate);
