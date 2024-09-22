@@ -1,5 +1,10 @@
 import fs from 'fs/promises';
 
+// For testing purposes
+export const setFsMock = (mock: typeof fs) => {
+  (fs as any) = mock;
+};
+
 interface I18nextJson {
   [key: string]: string | I18nextJson;
 }
@@ -41,21 +46,19 @@ export function identifyUntranslatedStrings(json: I18nextJson): string[] {
 }
 
 export function mergeI18nextJson(source: I18nextJson, target: I18nextJson): I18nextJson {
-  const merged: I18nextJson = { ...target };
+  const merged: I18nextJson = {};
 
-  function merge(src: I18nextJson, tgt: I18nextJson) {
+  function merge(src: I18nextJson, tgt: I18nextJson, result: I18nextJson) {
     for (const [key, value] of Object.entries(src)) {
       if (typeof value === 'object' && value !== null) {
-        if (typeof tgt[key] !== 'object') {
-          tgt[key] = {};
-        }
-        merge(value, tgt[key] as I18nextJson);
-      } else if (!(key in tgt) || (tgt[key] as string).trim() === '') {
-        tgt[key] = value;
+        result[key] = {};
+        merge(value, (tgt[key] as I18nextJson) || {}, result[key] as I18nextJson);
+      } else {
+        result[key] = key in tgt ? tgt[key] : '';
       }
     }
   }
 
-  merge(source, merged);
+  merge(source, target, merged);
   return merged;
 }
