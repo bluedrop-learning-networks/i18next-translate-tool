@@ -29,34 +29,34 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
 	}
 }
 
-// TODO: only care about empty strings, no need to identify missing
-// TODO: deal with arrays of values
 export function identifyUntranslatedStrings(
 	source: I18nextJson,
 	target: I18nextJson
 ): I18nextJson {
-	const untranslated: I18nextJson = {};
+	const patch: I18nextJson = {};
 
-	function traverse(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJson) {
+	function generatePatch(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJson) {
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
-			if (typeof sourceValue === 'string') {
-				if (!(key in targetObj) || typeof targetObj[key] !== 'string' || targetObj[key].trim() === '') {
-					result[key] = sourceValue;
+			if (!(key in targetObj)) {
+				result[key] = sourceValue;
+			} else if (typeof sourceValue === 'object' && sourceValue !== null && typeof targetObj[key] === 'object' && targetObj[key] !== null) {
+				result[key] = {};
+				generatePatch(sourceValue, targetObj[key] as I18nextJson, result[key] as I18nextJson);
+				if (Object.keys(result[key] as I18nextJson).length === 0) {
+					delete result[key];
 				}
-			} else if (typeof sourceValue === 'object' && sourceValue !== null) {
-				if (typeof targetObj[key] !== 'object' || targetObj[key] === null) {
-					result[key] = {};
-					traverse(sourceValue, {}, result[key] as I18nextJson);
-				} else {
-					result[key] = {};
-					traverse(sourceValue, targetObj[key] as I18nextJson, result[key] as I18nextJson);
-				}
+			}
+		}
+
+		for (const key of Object.keys(targetObj)) {
+			if (!(key in sourceObj)) {
+				result[key] = null;
 			}
 		}
 	}
 
-	traverse(source, target, untranslated);
-	return untranslated;
+	generatePatch(source, target, patch);
+	return patch;
 }
 
 // TODO: deal with arrays of values

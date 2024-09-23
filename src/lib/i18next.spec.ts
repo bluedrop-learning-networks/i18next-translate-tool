@@ -68,14 +68,50 @@ test('i18next functions', async (t) => {
 			key2: '',
 			nested: {
 				key3: 'translated',
-				key4: '',
+			},
+			extraKey: 'extra',
+		};
+
+		const result = identifyUntranslatedStrings(source, target);
+		assert.deepStrictEqual(result, {
+			key2: 'to translate',
+			nested: {
+				key4: 'also to translate',
+			},
+			extraKey: null,
+		});
+	});
+
+	await t.test('identifyUntranslatedStrings with nested objects', () => {
+		const source = {
+			key1: 'value1',
+			nested: {
+				key2: 'value2',
+				deepNested: {
+					key3: 'value3',
+				},
+			},
+		};
+		const target = {
+			key1: 'translated1',
+			nested: {
+				key2: 'translated2',
+				extraKey: 'extra',
+			},
+			extraNested: {
+				key4: 'extra4',
 			},
 		};
 
 		const result = identifyUntranslatedStrings(source, target);
 		assert.deepStrictEqual(result, {
-			'to translate': ['key2'],
-			'also to translate': ['nested', 'key4'],
+			nested: {
+				deepNested: {
+					key3: 'value3',
+				},
+				extraKey: null,
+			},
+			extraNested: null,
 		});
 	});
 
