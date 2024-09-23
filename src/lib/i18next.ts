@@ -34,29 +34,28 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
 export function identifyUntranslatedStrings(
 	source: I18nextJson,
 	target: I18nextJson
-): Record<string, string[]> {
-	const untranslated: Record<string, string[]> = {};
+): I18nextJson {
+	const untranslated: I18nextJson = {};
 
-	function traverse(sourceObj: I18nextJson, targetObj: I18nextJson, path: string[] = []) {
+	function traverse(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJson) {
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
-			const currentPath = [...path, key];
-			const targetValue = targetObj[key];
-
 			if (typeof sourceValue === 'string') {
-				if (!(key in targetObj) || typeof targetValue !== 'string' || targetValue.trim() === '') {
-					untranslated[sourceValue] = currentPath;
+				if (!(key in targetObj) || typeof targetObj[key] !== 'string' || targetObj[key].trim() === '') {
+					result[key] = sourceValue;
 				}
 			} else if (typeof sourceValue === 'object' && sourceValue !== null) {
-				if (typeof targetValue !== 'object' || targetValue === null) {
-					traverse(sourceValue, {}, currentPath);
+				if (typeof targetObj[key] !== 'object' || targetObj[key] === null) {
+					result[key] = {};
+					traverse(sourceValue, {}, result[key] as I18nextJson);
 				} else {
-					traverse(sourceValue, targetValue, currentPath);
+					result[key] = {};
+					traverse(sourceValue, targetObj[key] as I18nextJson, result[key] as I18nextJson);
 				}
 			}
 		}
 	}
 
-	traverse(source, target);
+	traverse(source, target, untranslated);
 	return untranslated;
 }
 

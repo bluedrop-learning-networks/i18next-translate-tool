@@ -4,12 +4,14 @@ const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
+import { I18nextJson } from './i18next';
+
 export async function translateKeys(
 	sourceLanguage: string,
 	targetLanguage: string,
-	keys: Record<string, string>
-): Promise<Record<string, string>> {
-	const prompt = `Translate the following keys from ${sourceLanguage} to ${targetLanguage}. Only provide the translations, maintaining the original structure:
+	keys: I18nextJson
+): Promise<I18nextJson> {
+	const prompt = `Translate the following nested object from ${sourceLanguage} to ${targetLanguage}. Only provide the translations, maintaining the original structure:
 
 ${JSON.stringify(keys, null, 2)}`;
 
