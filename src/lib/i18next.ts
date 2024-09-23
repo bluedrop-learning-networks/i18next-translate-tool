@@ -39,7 +39,8 @@ export function identifyUntranslatedStrings(
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
 			if (!(key in targetObj) || 
 				(typeof targetObj[key] === 'string' && targetObj[key] === '') ||
-				(Array.isArray(targetObj[key]) && (targetObj[key] as string[]).every(item => item === ''))) {
+				(Array.isArray(sourceValue) && Array.isArray(targetObj[key]) && 
+				 (targetObj[key] as string[]).some((item, index) => item === '' && (sourceValue as string[])[index] !== ''))) {
 				result[key] = sourceValue;
 			} else if (typeof sourceValue === 'object' && sourceValue !== null && 
 						typeof targetObj[key] === 'object' && targetObj[key] !== null &&

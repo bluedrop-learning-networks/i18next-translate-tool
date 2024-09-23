@@ -231,6 +231,23 @@ test('i18next functions', async (t) => {
 		});
 	});
 
+	await t.test('identifyUntranslatedStrings with partially translated arrays', () => {
+		const source = {
+			key1: ['value1a', 'value1b', 'value1c'],
+			key2: ['value2a', 'value2b'],
+		};
+		const target = {
+			key1: ['translated1a', '', 'translated1c'],
+			key2: ['', 'translated2b'],
+		};
+
+		const result = identifyUntranslatedStrings(source, target);
+		assert.deepStrictEqual(result, {
+			key1: ['value1a', 'value1b', 'value1c'],
+			key2: ['value2a', 'value2b'],
+		});
+	});
+
 	await t.test('synchronizeI18nextJson with arrays', () => {
 		const source = {
 			key1: 'source1',
