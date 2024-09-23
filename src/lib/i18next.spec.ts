@@ -202,4 +202,61 @@ test('i18next functions', async (t) => {
 			});
 		});
 	});
+
+	await t.test('identifyUntranslatedStrings with arrays', () => {
+		const source = {
+			key1: 'value1',
+			key2: ['value2a', 'value2b'],
+			nested: {
+				key3: ['value3a', 'value3b'],
+				key4: 'value4',
+			},
+		};
+		const target = {
+			key1: 'translated1',
+			key2: ['', ''],
+			nested: {
+				key3: ['translated3a', ''],
+				key4: '',
+			},
+		};
+
+		const result = identifyUntranslatedStrings(source, target);
+		assert.deepStrictEqual(result, {
+			key2: ['value2a', 'value2b'],
+			nested: {
+				key3: ['value3a', 'value3b'],
+				key4: 'value4',
+			},
+		});
+	});
+
+	await t.test('synchronizeI18nextJson with arrays', () => {
+		const source = {
+			key1: 'source1',
+			key2: ['source2a', 'source2b'],
+			nested: {
+				key3: ['source3a', 'source3b'],
+				key4: 'source4',
+			},
+		};
+		const target = {
+			key1: 'target1',
+			key2: ['target2a', ''],
+			nested: {
+				key3: 'not an array',
+				key4: 'target4',
+			},
+		};
+
+		const result = synchronizeI18nextJson(source, target);
+		assert.deepStrictEqual(result, {
+			key1: 'target1',
+			key2: ['target2a', ''],
+			nested: {
+				key3: ['', ''],
+				key4: 'target4',
+			},
+		});
+	});
 });
