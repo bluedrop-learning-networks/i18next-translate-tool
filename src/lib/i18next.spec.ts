@@ -313,22 +313,22 @@ test('i18next functions', async (t) => {
 		await t.test('should handle nested objects and arrays correctly', () => {
 			const target = {
 				nested: {
-					array: [1, 2, 3],
-					object: { a: 1, b: 2 }
+					array: ['1', '2', '3'],
+					object: { a: '1', b: '2' }
 				}
 			};
 			const patch = {
 				nested: {
-					array: [4, 5],
-					object: { b: 3, c: 4 }
+					array: ['4', '5'],
+					object: { b: '3', c: '4' }
 				}
 			};
 
 			const result = applyJsonMergePatch(target, patch);
 			assert.deepStrictEqual(result, {
 				nested: {
-					array: [4, 5],
-					object: { a: 1, b: 3, c: 4 }
+					array: ['4', '5'],
+					object: { a: '1', b: '3', c: '4' }
 				}
 			});
 		});
