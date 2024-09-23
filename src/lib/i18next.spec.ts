@@ -6,6 +6,7 @@ import {
 	readI18nextJson,
 	writeI18nextJson,
 	identifyUntranslatedStrings,
+	applyJsonMergePatch,
 	synchronizeI18nextJson,
 } from './i18next';
 
@@ -277,7 +278,7 @@ test('i18next functions', async (t) => {
 		});
 	});
 
-	await t.test('mergeJsonPatch', async (t) => {
+	await t.test('applyJsonMergePatch', async (t) => {
 		await t.test('should correctly merge a JSON patch into a target object', () => {
 			const target = {
 				key1: 'value1',
@@ -297,7 +298,7 @@ test('i18next functions', async (t) => {
 				key4: 'newValue4'
 			};
 
-			const result = mergeJsonPatch(target, patch);
+			const result = applyJsonMergePatch(target, patch);
 			assert.deepStrictEqual(result, {
 				key1: 'newValue1',
 				key2: {
@@ -323,7 +324,7 @@ test('i18next functions', async (t) => {
 				}
 			};
 
-			const result = mergeJsonPatch(target, patch);
+			const result = applyJsonMergePatch(target, patch);
 			assert.deepStrictEqual(result, {
 				nested: {
 					array: [4, 5],
