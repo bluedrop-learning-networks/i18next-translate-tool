@@ -82,6 +82,33 @@ test('i18next functions', async (t) => {
 		});
 	});
 
+	await t.test('identifyUntranslatedStrings with empty strings', () => {
+		const source = {
+			key1: 'value1',
+			key2: 'value2',
+			nested: {
+				key3: 'value3',
+				key4: 'value4',
+			},
+		};
+		const target = {
+			key1: 'translated1',
+			key2: '',
+			nested: {
+				key3: 'translated3',
+				key4: '',
+			},
+		};
+
+		const result = identifyUntranslatedStrings(source, target);
+		assert.deepStrictEqual(result, {
+			key2: 'value2',
+			nested: {
+				key4: 'value4',
+			},
+		});
+	});
+
 	await t.test('identifyUntranslatedStrings with nested objects', () => {
 		const source = {
 			key1: 'value1',

@@ -37,7 +37,7 @@ export function identifyUntranslatedStrings(
 
 	function generatePatch(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJson) {
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
-			if (!(key in targetObj)) {
+			if (!(key in targetObj) || (typeof targetObj[key] === 'string' && targetObj[key] === '')) {
 				result[key] = sourceValue;
 			} else if (typeof sourceValue === 'object' && sourceValue !== null && typeof targetObj[key] === 'object' && targetObj[key] !== null) {
 				result[key] = {};
