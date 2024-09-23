@@ -276,4 +276,60 @@ test('i18next functions', async (t) => {
 			},
 		});
 	});
+
+	await t.test('mergeJsonPatch', async (t) => {
+		await t.test('should correctly merge a JSON patch into a target object', () => {
+			const target = {
+				key1: 'value1',
+				key2: {
+					nestedKey1: 'nestedValue1',
+					nestedKey2: 'nestedValue2'
+				},
+				key3: ['item1', 'item2']
+			};
+			const patch = {
+				key1: 'newValue1',
+				key2: {
+					nestedKey2: 'newNestedValue2',
+					nestedKey3: 'newNestedValue3'
+				},
+				key3: null,
+				key4: 'newValue4'
+			};
+
+			const result = mergeJsonPatch(target, patch);
+			assert.deepStrictEqual(result, {
+				key1: 'newValue1',
+				key2: {
+					nestedKey1: 'nestedValue1',
+					nestedKey2: 'newNestedValue2',
+					nestedKey3: 'newNestedValue3'
+				},
+				key4: 'newValue4'
+			});
+		});
+
+		await t.test('should handle nested objects and arrays correctly', () => {
+			const target = {
+				nested: {
+					array: [1, 2, 3],
+					object: { a: 1, b: 2 }
+				}
+			};
+			const patch = {
+				nested: {
+					array: [4, 5],
+					object: { b: 3, c: 4 }
+				}
+			};
+
+			const result = mergeJsonPatch(target, patch);
+			assert.deepStrictEqual(result, {
+				nested: {
+					array: [4, 5],
+					object: { a: 1, b: 3, c: 4 }
+				}
+			});
+		});
+	});
 });
