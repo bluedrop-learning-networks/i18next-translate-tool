@@ -12,6 +12,26 @@ export async function translateKeys(
 ): Promise<I18nextJson> {
 	const systemPrompt = `You are a translation assistant. Translate the given JSON object from ${sourceLanguage} to ${targetLanguage}. Maintain the original structure and do not translate any null values. Only provide the translations.`;
 
+	const schema = {
+		type: 'object',
+		additionalProperties: {
+			anyOf: [
+				{ type: 'string' },
+				{ type: 'array', items: { type: 'string' } },
+				{
+					type: 'object',
+					additionalProperties: {
+						anyOf: [
+							{ type: 'string' },
+							{ type: 'array', items: { type: 'string' } },
+							{ type: 'object' }
+						]
+					}
+				}
+			]
+		}
+	};
+
 	try {
 		const response = await openai.chat.completions.create({
 			model: 'gpt-4-1106-preview',
@@ -19,7 +39,10 @@ export async function translateKeys(
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
-			response_format: { type: 'json_object' },
+			response_format: { 
+				type: 'json_object',
+				schema: schema
+			},
 		});
 
 		const translatedContent = response.choices[0].message.content;
