@@ -49,21 +49,11 @@ export async function translateKeys(
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
-			functions: [
-				{
-					name: 'translate',
-					description: 'Translate the given JSON object',
-					parameters: schema
-				}
-			],
-			function_call: { name: 'translate' }
+			response_format: { type: "json_object" },
+			schema: schema
 		});
 
-		const functionCall = response.choices[0].message.function_call;
-		if (!functionCall || !functionCall.arguments) {
-			throw new Error('No translation received from OpenAI');
-		}
-		const translatedContent = JSON.parse(functionCall.arguments) as I18nextJson;
+		const translatedContent = JSON.parse(response.choices[0].message.content) as I18nextJson;
 		return translatedContent;
 	} catch (error) {
 		console.error('Error translating keys:', error);
