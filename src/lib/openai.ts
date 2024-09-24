@@ -11,9 +11,11 @@ export async function translateKeys(
 	targetLanguage: string,
 	keys: I18nextJson
 ): Promise<I18nextJson> {
-	const prompt = `Translate the following nested object from ${sourceLanguage} to ${targetLanguage}. Only provide the translations, maintaining the original structure:
+	const prompt = `Translate the following nested object from ${sourceLanguage} to ${targetLanguage}. Do not translate any null values, leave them as null. Only provide the translations, maintaining the original structure:
 
 ${JSON.stringify(keys, null, 2)}`;
+
+  console.log(prompt);
 
 	try {
 		const response = await openai.chat.completions.create({
