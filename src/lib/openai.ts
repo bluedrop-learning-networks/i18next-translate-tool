@@ -6,29 +6,31 @@ const openai = new OpenAI({
 });
 
 
-function generateSchema(obj: I18nextJson) {
+function generateSchema(obj: I18nextJson): any {
   const schema: any = {
-	  type: 'object',
-		properties: {},
-		additionalProperties: false
-	};
+    type: 'object',
+    properties: {},
+    required: [],
+    additionalProperties: false
+  };
 
-	for (const [key, value] of Object.entries(obj)) {
-		if (value === null) {
-			schema.properties[key] = { type: 'null' };
-		} else if (typeof value === 'string') {
-			schema.properties[key] = { type: 'string' };
-		} else if (Array.isArray(value)) {
-			schema.properties[key] = {
-				type: 'array',
-				items: { type: 'string' }
-			};
-		} else if (typeof value === 'object') {
-			schema.properties[key] = generateSchema(value as I18nextJson);
-		}
-	}
+  for (const [key, value] of Object.entries(obj)) {
+    schema.required.push(key);
+    if (value === null) {
+      schema.properties[key] = { type: 'null' };
+    } else if (typeof value === 'string') {
+      schema.properties[key] = { type: 'string' };
+    } else if (Array.isArray(value)) {
+      schema.properties[key] = {
+        type: 'array',
+        items: { type: 'string' }
+      };
+    } else if (typeof value === 'object') {
+      schema.properties[key] = generateSchema(value as I18nextJson);
+    }
+  }
 
-	return schema;
+  return schema;
 }
 
 export async function translateKeys(
@@ -41,28 +43,28 @@ export async function translateKeys(
 	const schema = generateSchema(keys);
 
 	try {
-		const response = await openai.beta.chat.completions.parse({
-			model: 'gpt-4o-2024-08-06',
+		const response = await openai.chat.completions.create({
+			model: 'gpt-4',
 			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
-			response_format: {
-				type: 'json_schema',
-				json_schema: {
-				  strict: true,
-					name: 'translations',
-					schema,
+			functions: [
+				{
+					name: 'translate',
+					description: 'Translate the given JSON object',
+					parameters: schema
 				}
-			},
+			],
+			function_call: { name: 'translate' }
 		});
 
-    const message = response.choices[0]?.message;
-		if (!message?.parsed) {
-		  throw new Error(`No translation received from OpenAI: ${message.refusal}`);
+		const functionCall = response.choices[0].message.function_call;
+		if (!functionCall || !functionCall.arguments) {
+			throw new Error('No translation received from OpenAI');
 		}
-    const translatedContent = message.parsed as I18nextJson;
-    return translatedContent;
+		const translatedContent = JSON.parse(functionCall.arguments) as I18nextJson;
+		return translatedContent;
 	} catch (error) {
 		console.error('Error translating keys:', error);
 		throw error;
