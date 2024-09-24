@@ -126,6 +126,7 @@ export async function translateKeys(
   const translatedChunks = await Promise.all(
     chunks.map(chunk => translateChunk(sourceLanguage, targetLanguage, chunk))
   );
+  console.log(translatedChunks);
 
   // Merge translated chunks back into a single object
   return translatedChunks.reduce((acc, chunk) => ({ ...acc, ...chunk }), {});
