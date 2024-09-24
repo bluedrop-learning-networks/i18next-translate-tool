@@ -24,8 +24,15 @@ export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
 
 export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<string> {
 	try {
-		const sortedData = sortObjectKeys(data);
-		const jsonString = JSON.stringify(sortedData, null, 2) + '\n';
+		const jsonString = JSON.stringify(data, (key, value) => {
+			if (value && typeof value === 'object' && !Array.isArray(value)) {
+				return Object.keys(value).sort().reduce((sorted, key) => {
+					sorted[key] = value[key];
+					return sorted;
+				}, {});
+			}
+			return value;
+		}, 2) + '\n';
 		await fs.writeFile(filePath, jsonString, 'utf8');
 		return filePath;
 	} catch (error) {
@@ -34,15 +41,7 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
 	}
 }
 
-function sortObjectKeys(obj: I18nextJson): I18nextJson {
-	if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-		return obj;
-	}
-	return Object.keys(obj).sort().reduce((result: I18nextJson, key) => {
-		result[key] = sortObjectKeys(obj[key] as I18nextJson);
-		return result;
-	}, {});
-}
+// The sortObjectKeys function is no longer needed and can be removed
 
 export function identifyUntranslatedStrings(
 	source: I18nextJson,
