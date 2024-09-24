@@ -1,5 +1,4 @@
-import { command, run, string, positional, option, multioption, array, boolean } from 'cmd-ts';
-import path from 'path';
+import { command, run, flag, string, positional, option, multioption, array, boolean } from 'cmd-ts';
 import { readI18nextJson, writeI18nextJson  } from './lib/i18next';
 import { translate } from './lib/translate';
 
@@ -24,7 +23,7 @@ const translateCommand = command({
       short: 'o',
       description: 'Output file pattern (e.g., "locales/<lang>.json")',
     }),
-    replaceAll: option({
+    replaceAll: flag({
       type: boolean,
       long: 'replace-all',
       description: 'Replace all existing translations instead of only updating missing ones',

@@ -1,7 +1,11 @@
 import { promises as fs } from 'node:fs';
 
-interface I18nextJson {
+export interface I18nextJson {
 	[key: string]: string | string[] | I18nextJson;
+}
+
+interface I18nextJsonMergePatch {
+	[key: string]: string | string[] | null | I18nextJsonMergePatch;
 }
 
 export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
@@ -32,17 +36,17 @@ export async function writeI18nextJson(filePath: string, data: I18nextJson): Pro
 export function identifyUntranslatedStrings(
 	source: I18nextJson,
 	target: I18nextJson
-): I18nextJson {
-	const patch: I18nextJson = {};
+) {
+	const patch: I18nextJsonMergePatch = {};
 
-	function generatePatch(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJson) {
+	function generatePatch(sourceObj: I18nextJson, targetObj: I18nextJson, result: I18nextJsonMergePatch) {
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
-			if (!(key in targetObj) || 
+			if (!(key in targetObj) ||
 				(typeof targetObj[key] === 'string' && targetObj[key] === '') ||
-				(Array.isArray(sourceValue) && Array.isArray(targetObj[key]) && 
+				(Array.isArray(sourceValue) && Array.isArray(targetObj[key]) &&
 				 (targetObj[key] as string[]).some((item, index) => item === '' && (sourceValue as string[])[index] !== ''))) {
 				result[key] = sourceValue;
-			} else if (typeof sourceValue === 'object' && sourceValue !== null && 
+			} else if (typeof sourceValue === 'object' && sourceValue !== null &&
 						typeof targetObj[key] === 'object' && targetObj[key] !== null &&
 						!Array.isArray(sourceValue) && !Array.isArray(targetObj[key])) {
 				result[key] = {};
@@ -84,7 +88,7 @@ export function synchronizeI18nextJson(source: I18nextJson, target: I18nextJson)
 	return synchronized;
 }
 
-export function mergeJsonPatch(target: I18nextJson, patch: I18nextJson): I18nextJson {
+export function applyJsonMergePatch(target: I18nextJson, patch: I18nextJsonMergePatch): I18nextJson {
 	const result: I18nextJson = { ...target };
 
 	for (const [key, value] of Object.entries(patch)) {
@@ -92,9 +96,9 @@ export function mergeJsonPatch(target: I18nextJson, patch: I18nextJson): I18next
 			delete result[key];
 		} else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
 			if (typeof result[key] === 'object' && !Array.isArray(result[key]) && result[key] !== null) {
-				result[key] = mergeJsonPatch(result[key] as I18nextJson, value as I18nextJson);
+				result[key] = applyJsonMergePatch(result[key] as I18nextJson, value as I18nextJson);
 			} else {
-				result[key] = mergeJsonPatch({}, value as I18nextJson);
+				result[key] = applyJsonMergePatch({}, value as I18nextJson);
 			}
 		} else {
 			result[key] = value;

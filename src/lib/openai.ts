@@ -43,22 +43,23 @@ export async function translateKeys(
 	const schema = generateSchema(keys);
 
 	try {
-		const response = await openai.chat.completions.create({
+		const response = await openai.beta.chat.completions.parse({
 			model: 'gpt-4o-2024-08-06',
 			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
-			response_format: { 
-				type: "json_schema", 
+			response_format: {
+				type: "json_schema",
 				json_schema: {
-					"strict": true,
-					"schema": schema
+				  name: "translation",
+  				strict: true,
+					schema,
 				}
 			},
 		});
 
-		const translatedContent = JSON.parse(response.choices[0].message.content) as I18nextJson;
+		const translatedContent = response.choices[0].message.parsed as unknown as I18nextJson;
 		return translatedContent;
 	} catch (error) {
 		console.error('Error translating keys:', error);
