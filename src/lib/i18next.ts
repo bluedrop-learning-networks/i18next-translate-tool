@@ -24,13 +24,24 @@ export async function readI18nextJson(filePath: string): Promise<I18nextJson> {
 
 export async function writeI18nextJson(filePath: string, data: I18nextJson): Promise<string> {
 	try {
-		const jsonString = JSON.stringify(data, null, 2);
+		const sortedData = sortObjectKeys(data);
+		const jsonString = JSON.stringify(sortedData, null, 2) + '\n';
 		await fs.writeFile(filePath, jsonString, 'utf8');
 		return filePath;
 	} catch (error) {
 		console.error(`Error writing file ${filePath}:`, error);
 		throw error;
 	}
+}
+
+function sortObjectKeys(obj: I18nextJson): I18nextJson {
+	if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+		return obj;
+	}
+	return Object.keys(obj).sort().reduce((result: I18nextJson, key) => {
+		result[key] = sortObjectKeys(obj[key] as I18nextJson);
+		return result;
+	}, {});
 }
 
 export function identifyUntranslatedStrings(
