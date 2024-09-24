@@ -5,9 +5,10 @@ const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
-function generateSchema(obj: I18nextJson): object {
-	const schema: any = {
-		type: 'object',
+
+function generateSchema(obj: I18nextJson) {
+  const schema: any = {
+	  type: 'object',
 		properties: {},
 		additionalProperties: false
 	};
@@ -18,7 +19,7 @@ function generateSchema(obj: I18nextJson): object {
 		} else if (typeof value === 'string') {
 			schema.properties[key] = { type: 'string' };
 		} else if (Array.isArray(value)) {
-			schema.properties[key] = { 
+			schema.properties[key] = {
 				type: 'array',
 				items: { type: 'string' }
 			};
@@ -35,36 +36,33 @@ export async function translateKeys(
 	targetLanguage: string,
 	keys: I18nextJson
 ): Promise<I18nextJson> {
-	const systemPrompt = `You are a translation assistant. Translate the given JSON object from ${sourceLanguage} to ${targetLanguage}. Maintain the original structure and do not translate any null values. Only provide the translations.`;
+	const systemPrompt = `You are a translation assistant. Translate the given JSON object from '${sourceLanguage}' to '${targetLanguage}'. Maintain the original structure and do not translate any null values. Only provide the translations.`;
 
 	const schema = generateSchema(keys);
 
 	try {
-		const response = await openai.chat.completions.create({
-			model: 'gpt-4',
+		const response = await openai.beta.chat.completions.parse({
+			model: 'gpt-4o-2024-08-06',
 			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
 			response_format: {
-				type: 'json_object',
-			},
-			functions: [
-				{
-					name: 'translate',
-					description: 'Translate the given JSON object',
-					parameters: schema
+				type: 'json_schema',
+				json_schema: {
+				  strict: true,
+					name: 'translations',
+					schema,
 				}
-			],
-			function_call: { name: 'translate' }
+			},
 		});
 
-		const translatedContent = response.choices[0].message.function_call?.arguments;
-		if (!translatedContent) {
-			throw new Error('No translation received from OpenAI');
+    const message = response.choices[0]?.message;
+		if (!message?.parsed) {
+		  throw new Error(`No translation received from OpenAI: ${message.refusal}`);
 		}
-
-		return JSON.parse(translatedContent) as I18nextJson;
+    const translatedContent = message.parsed as I18nextJson;
+    return translatedContent;
 	} catch (error) {
 		console.error('Error translating keys:', error);
 		throw error;
