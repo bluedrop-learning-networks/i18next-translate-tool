@@ -44,12 +44,18 @@ export async function translateKeys(
 
 	try {
 		const response = await openai.chat.completions.create({
-			model: 'gpt-4-1106-preview',
+			model: 'gpt-4o-2024-08-06',
 			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
-			response_format: { type: "json_object" },
+			response_format: { 
+				type: "json_schema", 
+				json_schema: {
+					"strict": true,
+					"schema": schema
+				}
+			},
 		});
 
 		const translatedContent = JSON.parse(response.choices[0].message.content) as I18nextJson;
