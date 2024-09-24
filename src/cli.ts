@@ -1,7 +1,7 @@
-import { command, run, string, positional, option, multioption } from 'cmd-ts';
+import { command, run, string, positional, option, multioption, array } from 'cmd-ts';
 import path from 'path';
-import { readI18nextJson, writeI18nextJson, synchronizeI18nextJson } from './lib/i18next';
-import { translateI18nextJson } from './lib/translate';
+import { readI18nextJson, writeI18nextJson  } from './lib/i18next';
+import { translate } from './lib/translate';
 
 const translateCommand = command({
   name: 'translate',
@@ -13,7 +13,7 @@ const translateCommand = command({
       description: 'Path to the source language file',
     }),
     targetLanguages: multioption({
-      type: string,
+      type: array(string),
       long: 'target',
       short: 't',
       description: 'Target language code(s)',
@@ -27,15 +27,15 @@ const translateCommand = command({
   },
   handler: async ({ sourceFile, targetLanguages, outputPattern }) => {
     try {
+      console.log('hello world');
       const sourceJson = await readI18nextJson(sourceFile);
 
       for (const targetLang of targetLanguages) {
         const outputFile = outputPattern.replace('<lang>', targetLang);
         const targetJson = await readI18nextJson(outputFile);
-        
-        const synchronizedJson = synchronizeI18nextJson(sourceJson, targetJson);
-        const translatedJson = await translateI18nextJson(synchronizedJson, targetLang);
-        
+
+        const translatedJson = await translate(sourceJson, 'en', targetLang, targetJson);
+
         await writeI18nextJson(outputFile, translatedJson);
         console.log(`Translated file written to: ${outputFile}`);
       }
@@ -45,10 +45,4 @@ const translateCommand = command({
   },
 });
 
-export const cli = command({
-  name: 'translation-tool',
-  description: 'CLI tool for translating i18next locale files',
-  subcommands: { translate: translateCommand },
-});
-
-export const runCli = () => run(cli, process.argv.slice(2));
+run(translateCommand, process.argv.slice(2));
