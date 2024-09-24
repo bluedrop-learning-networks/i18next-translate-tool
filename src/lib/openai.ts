@@ -22,8 +22,21 @@ function splitObject(obj: I18nextJson, maxProperties: number = 100): I18nextJson
   let currentCount = 0;
 
   function addToCurrentObj(key: string, value: any) {
+    const valuePropertyCount = typeof value === 'object' && value !== null && !Array.isArray(value)
+      ? countProperties(value as I18nextJson)
+      : 1;
+
+    if (currentCount + valuePropertyCount > maxProperties) {
+      if (Object.keys(currentObj).length > 0) {
+        result.push(currentObj);
+      }
+      currentObj = {};
+      currentCount = 0;
+    }
+
     currentObj[key] = value;
-    currentCount++;
+    currentCount += valuePropertyCount;
+
     if (currentCount >= maxProperties) {
       result.push(currentObj);
       currentObj = {};
