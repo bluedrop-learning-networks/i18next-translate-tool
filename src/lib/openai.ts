@@ -5,6 +5,31 @@ const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
+function generateSchema(obj: I18nextJson): object {
+	const schema: any = {
+		type: 'object',
+		properties: {},
+		additionalProperties: false
+	};
+
+	for (const [key, value] of Object.entries(obj)) {
+		if (value === null) {
+			schema.properties[key] = { type: 'null' };
+		} else if (typeof value === 'string') {
+			schema.properties[key] = { type: 'string' };
+		} else if (Array.isArray(value)) {
+			schema.properties[key] = { 
+				type: 'array',
+				items: { type: 'string' }
+			};
+		} else if (typeof value === 'object') {
+			schema.properties[key] = generateSchema(value as I18nextJson);
+		}
+	}
+
+	return schema;
+}
+
 export async function translateKeys(
 	sourceLanguage: string,
 	targetLanguage: string,
@@ -12,41 +37,29 @@ export async function translateKeys(
 ): Promise<I18nextJson> {
 	const systemPrompt = `You are a translation assistant. Translate the given JSON object from ${sourceLanguage} to ${targetLanguage}. Maintain the original structure and do not translate any null values. Only provide the translations.`;
 
-	const schema = {
-	name: 'abc',
-	type: 'object',
-		additionalProperties: {
-			anyOf: [
-				{ type: 'string' },
-				{ type: 'array', items: { type: 'string' } },
-				{
-					type: 'object',
-					additionalProperties: {
-						anyOf: [
-							{ type: 'string' },
-							{ type: 'array', items: { type: 'string' } },
-							{ type: 'object' }
-						]
-					}
-				}
-			]
-		}
-	};
+	const schema = generateSchema(keys);
 
 	try {
-		const response = openai.beta.chat.completions.parse({
-		model: 'gpt-4o',
-		messages: [
+		const response = await openai.chat.completions.create({
+			model: 'gpt-4',
+			messages: [
 				{ role: 'system', content: systemPrompt },
 				{ role: 'user', content: JSON.stringify(keys) }
 			],
 			response_format: {
-			  type: 'json_schema',
-				json_schema: schema,
+				type: 'json_object',
 			},
+			functions: [
+				{
+					name: 'translate',
+					description: 'Translate the given JSON object',
+					parameters: schema
+				}
+			],
+			function_call: { name: 'translate' }
 		});
 
-		const translatedContent = response.choices[0].message.content;
+		const translatedContent = response.choices[0].message.function_call?.arguments;
 		if (!translatedContent) {
 			throw new Error('No translation received from OpenAI');
 		}
