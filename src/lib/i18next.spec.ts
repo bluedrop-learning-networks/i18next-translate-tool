@@ -42,7 +42,37 @@ test('i18next functions', async (t) => {
 
 		assert.strictEqual(result, testFile);
 		const writtenData = await fs.readFile(testFile, 'utf8');
-		assert.strictEqual(writtenData, JSON.stringify(data, null, 2));
+		assert.strictEqual(writtenData, JSON.stringify(data, null, 2) + '\n');
+
+		// Cleanup
+		await fs.unlink(testFile);
+	});
+
+	await t.test('writeI18nextJson should write objects in sorted order with newline', async () => {
+		const testFile = path.join(testDir, 'test-write-sorted.json');
+		const data = {
+			c: 'value3',
+			a: 'value1',
+			b: {
+				z: 'nested3',
+				x: 'nested1',
+				y: 'nested2'
+			}
+		};
+		await writeI18nextJson(testFile, data);
+
+		const writtenData = await fs.readFile(testFile, 'utf8');
+		const expectedData = JSON.stringify({
+			a: 'value1',
+			b: {
+				x: 'nested1',
+				y: 'nested2',
+				z: 'nested3'
+			},
+			c: 'value3'
+		}, null, 2) + '\n';
+
+		assert.strictEqual(writtenData, expectedData);
 
 		// Cleanup
 		await fs.unlink(testFile);
