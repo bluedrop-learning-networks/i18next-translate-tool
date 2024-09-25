@@ -36,13 +36,25 @@ describe('splitObject', () => {
         subkey3: 'value3',
         subkey4: 'value4',
       },
+      key2: {
+        subkey5: 'value5',
+        subkey6: 'value6',
+      },
     };
 
-    const result = splitObject(input, 2);
+    const result = splitObject(input, 3);
 
     assert.ok(result.length > 1, 'Result should have more than one part');
 
     const reconstructed = result.reduce((acc, patch) => jsonMergePatch(acc, patch), {});
     assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
+
+    // Additional assertions
+    assert.strictEqual(result[0].key1.subkey1, 'value1', 'First part should contain key1.subkey1');
+    assert.strictEqual(result[0].key1.subkey2, 'value2', 'First part should contain key1.subkey2');
+    assert.strictEqual(result[0].key1.subkey3, 'value3', 'First part should contain key1.subkey3');
+    assert.strictEqual(result[1].key1.subkey4, 'value4', 'Second part should contain key1.subkey4');
+    assert.strictEqual(result[1].key2.subkey5, 'value5', 'Second part should contain key2.subkey5');
+    assert.strictEqual(result[2].key2.subkey6, 'value6', 'Third part should contain key2.subkey6');
   });
 });

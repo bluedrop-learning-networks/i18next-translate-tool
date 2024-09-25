@@ -17,14 +17,8 @@ export default function splitObject(obj: I18nextJsonMergePatch, maxProperties: n
   let currentCount = 0;
 
   function addToCurrentObj(path: string[], value: any) {
-    const valuePropertyCount = typeof value === 'object' && value !== null && !Array.isArray(value)
-      ? countProperties(value as I18nextJson)
-      : 1;
-
-    if (currentCount + valuePropertyCount > maxProperties) {
-      if (Object.keys(currentObj).length > 0) {
-        result.push(currentObj);
-      }
+    if (currentCount >= maxProperties) {
+      result.push(currentObj);
       currentObj = {};
       currentCount = 0;
     }
@@ -37,27 +31,14 @@ export default function splitObject(obj: I18nextJsonMergePatch, maxProperties: n
       target = target[path[i]] as I18nextJsonMergePatch;
     }
     target[path[path.length - 1]] = value;
-    currentCount += valuePropertyCount;
-
-    if (currentCount >= maxProperties) {
-      result.push(currentObj);
-      currentObj = {};
-      currentCount = 0;
-    }
+    currentCount++;
   }
 
   function processObject(o: I18nextJson, path: string[] = []) {
     for (const [key, value] of Object.entries(o)) {
       const newPath = [...path, key];
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        if (countProperties(value as I18nextJson) > maxProperties) {
-          const subObjects = splitObject(value as I18nextJson, maxProperties);
-          subObjects.forEach((subObj, index) => {
-            addToCurrentObj([...newPath, `part${index + 1}`], subObj);
-          });
-        } else {
-          processObject(value as I18nextJson, newPath);
-        }
+        processObject(value as I18nextJson, newPath);
       } else {
         addToCurrentObj(newPath, value);
       }
