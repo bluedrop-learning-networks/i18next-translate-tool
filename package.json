@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "tsx --test 'src/**/*.spec.ts'",
+    "test": "tsx --test ${1:-'src/**/*.spec.ts'}",
     "lint": "biome lint .",
     "format": "biome format . --write",
     "check": "biome check --apply ."
