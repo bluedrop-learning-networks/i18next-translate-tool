@@ -1,6 +1,6 @@
 import { I18nextJson, I18nextJsonMergePatch } from './types';
 
-function countProperties(obj: I18nextJsonMergePatch): number {
+export function countProperties(obj: I18nextJsonMergePatch): number {
 	let count = 0;
 	for (const [, value] of Object.entries(obj)) {
 		count++;
