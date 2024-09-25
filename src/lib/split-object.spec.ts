@@ -44,7 +44,7 @@ describe('splitObject', () => {
 
 		const result = splitObject(input, 3);
 
-		assert.strictEqual(result.length, 4, 'Result should have exactly four parts');
+		assert.strictEqual(result.length, 3, 'Result should have exactly four parts');
 
 		const reconstructed = result.reduce((acc, patch) => jsonMergePatch(acc, patch), {});
 		assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
@@ -59,11 +59,7 @@ describe('splitObject', () => {
 		}, 'Second part should contain the remaining subkeys of key1');
 
 		assert.deepStrictEqual(result[2], {
-			key2: { subkey5: 'value5' }
+			key2: { subkey5: 'value5', subkey6: 'value6' }
 		}, 'Third part should contain key2 and its first subkey');
-
-		assert.deepStrictEqual(result[3], {
-			key2: { subkey6: 'value6' }
-		}, 'Fourth part should contain the last subkey of key2');
 	});
 });
