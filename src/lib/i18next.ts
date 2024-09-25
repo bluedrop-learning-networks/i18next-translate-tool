@@ -62,7 +62,9 @@ export function extractUntranslatedDiff({
 					patch[key] = sourceValue;
 				}
 			} else if (Array.isArray(sourceValue) && Array.isArray(targetObj[key])) {
-				const untranslatedArray = sourceValue.filter((_, index) => (targetObj[key] as string[])[index] === '');
+				const untranslatedArray = sourceValue.filter(
+					(_, index) => (targetObj[key] as string[])[index] === ''
+				);
 				if (untranslatedArray.length > 0) {
 					patch[key] = sourceValue;
 				}

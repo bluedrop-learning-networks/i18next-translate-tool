@@ -1,9 +1,6 @@
 import { I18nextJson, I18nextJsonMergePatch } from './types';
 
-export default function jsonMergePatch(
-	target: I18nextJson,
-	patch: I18nextJsonMergePatch
-): I18nextJson {
+export function jsonMergePatch(target: I18nextJson, patch: I18nextJsonMergePatch): I18nextJson {
 	const result: I18nextJson = { ...target };
 
 	for (const [key, value] of Object.entries(patch)) {

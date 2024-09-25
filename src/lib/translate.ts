@@ -1,8 +1,8 @@
-import { translateChunk } from './openai';
+import { translateI18nextJson } from './openai';
 import { extractUntranslatedDiff } from './i18next';
 import { I18nextJson } from './types';
-import splitObject from './split-object';
-import jsonMergePatch from './json-merge-patch';
+import { splitObject } from './split-object';
+import { jsonMergePatch } from './json-merge-patch';
 
 export async function translate({
 	source,
@@ -17,7 +17,7 @@ export async function translate({
 	const chunks = splitObject(untranslatedStrings, 100);
 
 	const translatedChunks = await Promise.all(
-		chunks.map((chunk) => translateChunk(sourceLanguage, targetLanguage, chunk))
+		chunks.map((chunk) => translateI18nextJson({ sourceLanguage, targetLanguage, json: chunk }))
 	);
 
 	// Merge translated strings back into target

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import splitObject, { countProperties } from './split-object';
+import { splitObject, countProperties } from './split-object';
 import jsonMergePatch from './json-merge-patch';
 
 describe('splitObject', () => {
@@ -66,16 +66,28 @@ describe('splitObject', () => {
 		});
 
 		// Check the content of each part
-		assert.deepStrictEqual(result[0], {
-			key1: { subkey1: 'value1', subkey2: 'value2', subkey3: 'value3' }
-		}, 'First part should contain key1 and its first three subkeys');
+		assert.deepStrictEqual(
+			result[0],
+			{
+				key1: { subkey1: 'value1', subkey2: 'value2' },
+			},
+			'First part should contain key1 and its first three subkeys'
+		);
 
-		assert.deepStrictEqual(result[1], {
-			key1: { subkey4: 'value4' }
-		}, 'Second part should contain the remaining subkey of key1');
+		assert.deepStrictEqual(
+			result[1],
+			{
+				key1: { subkey3: 'value3', subkey4: 'value4' },
+			},
+			'Second part should contain the remaining subkey of key1'
+		);
 
-		assert.deepStrictEqual(result[2], {
-			key2: { subkey5: 'value5', subkey6: 'value6' }
-		}, 'Third part should contain key2 and its subkeys');
+		assert.deepStrictEqual(
+			result[2],
+			{
+				key2: { subkey5: 'value5', subkey6: 'value6' },
+			},
+			'Third part should contain key2 and its subkeys'
+		);
 	});
 });

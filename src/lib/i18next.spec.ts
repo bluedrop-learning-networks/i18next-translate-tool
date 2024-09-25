@@ -2,11 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {
-	readI18nextJson,
-	writeI18nextJson,
-	extractUntranslatedDiff,
-} from './i18next';
+import { readI18nextJson, writeI18nextJson, extractUntranslatedDiff } from './i18next';
 
 const testDir = path.join(process.cwd(), 'test-files');
 
@@ -83,9 +79,12 @@ test('i18next functions', async (t) => {
 
 	await t.test('writeI18nextJson should throw on error', async () => {
 		const invalidFile = path.join(testDir, 'invalid-dir', 'test.json');
-		await assert.rejects(async () => await writeI18nextJson({ filePath: invalidFile, data: { key: 'value' } }), {
-			code: 'ENOENT',
-		});
+		await assert.rejects(
+			async () => await writeI18nextJson({ filePath: invalidFile, data: { key: 'value' } }),
+			{
+				code: 'ENOENT',
+			}
+		);
 	});
 
 	await t.test('identifyUntranslatedStrings', () => {
@@ -216,8 +215,8 @@ test('i18next functions', async (t) => {
 
 		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
-  		key1: ['value1a', 'value1b', 'value1c'],
-  		key2: ['value2a', 'value2b'],
+			key1: ['value1a', 'value1b', 'value1c'],
+			key2: ['value2a', 'value2b'],
 		});
 	});
 });

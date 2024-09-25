@@ -11,7 +11,7 @@ export function countProperties(obj: I18nextJsonMergePatch): number {
 	return count;
 }
 
-export default function splitObject(
+export function splitObject(
 	obj: I18nextJsonMergePatch,
 	maxProperties: number
 ): I18nextJsonMergePatch[] {

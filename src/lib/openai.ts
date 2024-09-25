@@ -6,21 +6,25 @@ const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function translateChunk(
-	sourceLanguage: string,
-	targetLanguage: string,
-	chunk: I18nextJsonMergePatch
-): Promise<I18nextJson> {
+export async function translateI18nextJson({
+	sourceLanguage,
+	targetLanguage,
+	json,
+}: {
+	sourceLanguage: string;
+	targetLanguage: string;
+	json: I18nextJsonMergePatch;
+}): Promise<I18nextJson> {
 	const systemPrompt = `You are a translation assistant. Translate the given JSON object from '${sourceLanguage}' to '${targetLanguage}'. Maintain the original structure and do not translate any null values. Only provide the translations.`;
 
-	const schema = generateSchemaFromObject(chunk);
+	const schema = generateSchemaFromObject(json);
 
 	try {
 		const response = await openai.beta.chat.completions.parse({
 			model: 'gpt-4o-2024-08-06',
 			messages: [
 				{ role: 'system', content: systemPrompt },
-				{ role: 'user', content: JSON.stringify(chunk) },
+				{ role: 'user', content: JSON.stringify(json) },
 			],
 			response_format: {
 				type: 'json_schema',
