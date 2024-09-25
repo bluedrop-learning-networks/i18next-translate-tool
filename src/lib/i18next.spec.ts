@@ -20,7 +20,7 @@ test('i18next functions', async (t) => {
 			const testData = { key: 'value' };
 			await fs.writeFile(testFile, JSON.stringify(testData), 'utf8');
 
-			const result = await readI18nextJson(testFile);
+			const result = await readI18nextJson({ filePath: testFile });
 			assert.deepStrictEqual(result, testData);
 
 			// Cleanup
@@ -28,7 +28,7 @@ test('i18next functions', async (t) => {
 		});
 
 		await t.test('should return empty object on error', async () => {
-			const result = await readI18nextJson('nonexistent.json');
+			const result = await readI18nextJson({ filePath: 'nonexistent.json' });
 			assert.deepStrictEqual(result, {});
 		});
 	});
@@ -36,7 +36,7 @@ test('i18next functions', async (t) => {
 	await t.test('writeI18nextJson', async () => {
 		const testFile = path.join(testDir, 'test-write.json');
 		const data = { key: 'value' };
-		const result = await writeI18nextJson(testFile, data);
+		const result = await writeI18nextJson({ filePath: testFile, data });
 
 		assert.strictEqual(result, testFile);
 		const writtenData = await fs.readFile(testFile, 'utf8');
@@ -57,7 +57,7 @@ test('i18next functions', async (t) => {
 				y: 'nested2',
 			},
 		};
-		await writeI18nextJson(testFile, data);
+		await writeI18nextJson({ filePath: testFile, data });
 
 		const writtenData = await fs.readFile(testFile, 'utf8');
 		const expectedData =
@@ -83,7 +83,7 @@ test('i18next functions', async (t) => {
 
 	await t.test('writeI18nextJson should throw on error', async () => {
 		const invalidFile = path.join(testDir, 'invalid-dir', 'test.json');
-		await assert.rejects(async () => await writeI18nextJson(invalidFile, { key: 'value' }), {
+		await assert.rejects(async () => await writeI18nextJson({ filePath: invalidFile, data: { key: 'value' } }), {
 			code: 'ENOENT',
 		});
 	});
@@ -106,7 +106,7 @@ test('i18next functions', async (t) => {
 			extraKey: 'extra',
 		};
 
-		const result = extractUntranslatedDiff(source, target);
+		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
 			key2: 'to translate',
 			nested: {
@@ -134,7 +134,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = extractUntranslatedDiff(source, target);
+		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
 			key2: 'value2',
 			nested: {
@@ -164,7 +164,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = extractUntranslatedDiff(source, target);
+		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
 			nested: {
 				deepNested: {
@@ -194,7 +194,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = extractUntranslatedDiff(source, target);
+		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
 			key2: ['value2a', 'value2b'],
 			nested: {
