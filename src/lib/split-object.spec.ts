@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import splitObject from './split-object';
 import { merge } from 'lodash';
 
@@ -21,10 +22,10 @@ describe('splitObject', () => {
 
     const result = splitObject(input, 3);
 
-    expect(result.length).to.be.greaterThan(1);
+    assert.ok(result.length > 1, 'Result should have more than one part');
 
     const reconstructed = result.reduce((acc, patch) => merge({}, acc, patch), {});
-    expect(reconstructed).to.deep.equal(input);
+    assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
   });
 
   it('should handle nested objects that exceed maxProperties', () => {
@@ -39,9 +40,9 @@ describe('splitObject', () => {
 
     const result = splitObject(input, 2);
 
-    expect(result.length).to.be.greaterThan(1);
+    assert.ok(result.length > 1, 'Result should have more than one part');
 
     const reconstructed = result.reduce((acc, patch) => merge({}, acc, patch), {});
-    expect(reconstructed).to.deep.equal(input);
+    assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
   });
 });
