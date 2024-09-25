@@ -7,9 +7,11 @@ export default function jsonMergePatch(
 	const result: I18nextJson = { ...target };
 
 	for (const [key, value] of Object.entries(patch)) {
-		if (value === null) {
+		if (value === undefined) {
+			continue; // Skip undefined values
+		} else if (value === null) {
 			delete result[key];
-		} else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+		} else if (typeof value === 'object' && !Array.isArray(value)) {
 			if (typeof result[key] === 'object' && !Array.isArray(result[key]) && result[key] !== null) {
 				result[key] = jsonMergePatch(result[key] as I18nextJson, value as I18nextJson);
 			} else {
