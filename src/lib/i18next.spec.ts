@@ -5,9 +5,8 @@ import path from 'node:path';
 import {
 	readI18nextJson,
 	writeI18nextJson,
-	identifyUntranslatedStrings,
+	extractUntranslatedDiff,
 	applyJsonMergePatch,
-	synchronizeI18nextJson,
 } from './i18next';
 
 const testDir = path.join(process.cwd(), 'test-files');
@@ -56,21 +55,26 @@ test('i18next functions', async (t) => {
 			b: {
 				z: 'nested3',
 				x: 'nested1',
-				y: 'nested2'
-			}
+				y: 'nested2',
+			},
 		};
 		await writeI18nextJson(testFile, data);
 
 		const writtenData = await fs.readFile(testFile, 'utf8');
-		const expectedData = JSON.stringify({
-			a: 'value1',
-			b: {
-				x: 'nested1',
-				y: 'nested2',
-				z: 'nested3'
-			},
-			c: 'value3'
-		}, null, 2) + '\n';
+		const expectedData =
+			JSON.stringify(
+				{
+					a: 'value1',
+					b: {
+						x: 'nested1',
+						y: 'nested2',
+						z: 'nested3',
+					},
+					c: 'value3',
+				},
+				null,
+				2
+			) + '\n';
 
 		assert.strictEqual(writtenData, expectedData);
 
@@ -103,7 +107,7 @@ test('i18next functions', async (t) => {
 			extraKey: 'extra',
 		};
 
-		const result = identifyUntranslatedStrings(source, target);
+		const result = extractUntranslatedDiff(source, target);
 		assert.deepStrictEqual(result, {
 			key2: 'to translate',
 			nested: {
@@ -131,7 +135,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = identifyUntranslatedStrings(source, target);
+		const result = extractUntranslatedDiff(source, target);
 		assert.deepStrictEqual(result, {
 			key2: 'value2',
 			nested: {
@@ -161,7 +165,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = identifyUntranslatedStrings(source, target);
+		const result = extractUntranslatedDiff(source, target);
 		assert.deepStrictEqual(result, {
 			nested: {
 				deepNested: {
@@ -170,67 +174,6 @@ test('i18next functions', async (t) => {
 				extraKey: null,
 			},
 			extraNested: null,
-		});
-	});
-
-	await t.test('synchronizeI18nextJson', async (t) => {
-		await t.test(
-			'should synchronize target with source structure, keeping existing translations and setting new keys to empty string',
-			() => {
-				const source = {
-					key1: 'source1',
-					key2: 'source2',
-					nested: {
-						key3: 'source3',
-						key4: 'source4',
-					},
-				};
-				const target = {
-					key1: 'target1',
-					nested: {
-						key3: 'target3',
-					},
-					extraKey: 'extra',
-				};
-
-				const result = synchronizeI18nextJson(source, target);
-				assert.deepStrictEqual(result, {
-					key1: 'target1',
-					key2: '',
-					nested: {
-						key3: 'target3',
-						key4: '',
-					},
-				});
-			}
-		);
-
-		await t.test('should remove keys in target that do not exist in source', () => {
-			const source = {
-				key1: 'source1',
-				nested: {
-					key3: 'source3',
-				},
-			};
-			const target = {
-				key1: 'target1',
-				key2: 'target2',
-				nested: {
-					key3: 'target3',
-					key4: 'target4',
-				},
-				extraNested: {
-					key5: 'target5',
-				},
-			};
-
-			const result = synchronizeI18nextJson(source, target);
-			assert.deepStrictEqual(result, {
-				key1: 'target1',
-				nested: {
-					key3: 'target3',
-				},
-			});
 		});
 	});
 
@@ -252,7 +195,7 @@ test('i18next functions', async (t) => {
 			},
 		};
 
-		const result = identifyUntranslatedStrings(source, target);
+		const result = extractUntranslatedDiff(source, target);
 		assert.deepStrictEqual(result, {
 			key2: ['value2a', 'value2b'],
 			nested: {
@@ -272,39 +215,10 @@ test('i18next functions', async (t) => {
 			key2: ['', 'translated2b'],
 		};
 
-		const result = identifyUntranslatedStrings(source, target);
+		const result = extractUntranslatedDiff(source, target);
 		assert.deepStrictEqual(result, {
 			key1: ['value1a', 'value1b', 'value1c'],
 			key2: ['value2a', 'value2b'],
-		});
-	});
-
-	await t.test('synchronizeI18nextJson with arrays', () => {
-		const source = {
-			key1: 'source1',
-			key2: ['source2a', 'source2b'],
-			nested: {
-				key3: ['source3a', 'source3b'],
-				key4: 'source4',
-			},
-		};
-		const target = {
-			key1: 'target1',
-			key2: ['target2a', ''],
-			nested: {
-				key3: 'not an array',
-				key4: 'target4',
-			},
-		};
-
-		const result = synchronizeI18nextJson(source, target);
-		assert.deepStrictEqual(result, {
-			key1: 'target1',
-			key2: ['target2a', ''],
-			nested: {
-				key3: ['', ''],
-				key4: 'target4',
-			},
 		});
 	});
 
@@ -314,18 +228,18 @@ test('i18next functions', async (t) => {
 				key1: 'value1',
 				key2: {
 					nestedKey1: 'nestedValue1',
-					nestedKey2: 'nestedValue2'
+					nestedKey2: 'nestedValue2',
 				},
-				key3: ['item1', 'item2']
+				key3: ['item1', 'item2'],
 			};
 			const patch = {
 				key1: 'newValue1',
 				key2: {
 					nestedKey2: 'newNestedValue2',
-					nestedKey3: 'newNestedValue3'
+					nestedKey3: 'newNestedValue3',
 				},
 				key3: null,
-				key4: 'newValue4'
+				key4: 'newValue4',
 			};
 
 			const result = applyJsonMergePatch(target, patch);
@@ -334,9 +248,9 @@ test('i18next functions', async (t) => {
 				key2: {
 					nestedKey1: 'nestedValue1',
 					nestedKey2: 'newNestedValue2',
-					nestedKey3: 'newNestedValue3'
+					nestedKey3: 'newNestedValue3',
 				},
-				key4: 'newValue4'
+				key4: 'newValue4',
 			});
 		});
 
@@ -344,22 +258,22 @@ test('i18next functions', async (t) => {
 			const target = {
 				nested: {
 					array: ['1', '2', '3'],
-					object: { a: '1', b: '2' }
-				}
+					object: { a: '1', b: '2' },
+				},
 			};
 			const patch = {
 				nested: {
 					array: ['4', '5'],
-					object: { b: '3', c: '4' }
-				}
+					object: { b: '3', c: '4' },
+				},
 			};
 
 			const result = applyJsonMergePatch(target, patch);
 			assert.deepStrictEqual(result, {
 				nested: {
 					array: ['4', '5'],
-					object: { a: '1', b: '3', c: '4' }
-				}
+					object: { a: '1', b: '3', c: '4' },
+				},
 			});
 		});
 	});
