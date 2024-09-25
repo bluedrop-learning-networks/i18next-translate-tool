@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import splitObject from './split-object';
-import { merge } from 'lodash';
+import jsonMergePatch from './json-merge-patch';
 
 describe('splitObject', () => {
   it('should split a large object into smaller ones', () => {
@@ -24,7 +24,7 @@ describe('splitObject', () => {
 
     assert.ok(result.length > 1, 'Result should have more than one part');
 
-    const reconstructed = result.reduce((acc, patch) => merge({}, acc, patch), {});
+    const reconstructed = result.reduce((acc, patch) => jsonMergePatch(acc, patch), {});
     assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
   });
 
@@ -42,7 +42,7 @@ describe('splitObject', () => {
 
     assert.ok(result.length > 1, 'Result should have more than one part');
 
-    const reconstructed = result.reduce((acc, patch) => merge({}, acc, patch), {});
+    const reconstructed = result.reduce((acc, patch) => jsonMergePatch(acc, patch), {});
     assert.deepStrictEqual(reconstructed, input, 'Reconstructed object should match the input');
   });
 });
