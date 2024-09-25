@@ -55,16 +55,17 @@ export function extractUntranslatedDiff({
 		const patch: I18nextJsonMergePatch = {};
 
 		for (const [key, sourceValue] of Object.entries(sourceObj)) {
-			if (
-				!(key in targetObj) ||
-				(typeof targetObj[key] === 'string' && targetObj[key] === '') ||
-				(Array.isArray(sourceValue) &&
-					Array.isArray(targetObj[key]) &&
-					(targetObj[key] as string[]).some(
-						(item, index) => item === '' && (sourceValue as string[])[index] !== ''
-					))
-			) {
+			if (!(key in targetObj)) {
 				patch[key] = sourceValue;
+			} else if (typeof sourceValue === 'string' && typeof targetObj[key] === 'string') {
+				if (targetObj[key] === '') {
+					patch[key] = sourceValue;
+				}
+			} else if (Array.isArray(sourceValue) && Array.isArray(targetObj[key])) {
+				const untranslatedArray = sourceValue.filter((_, index) => (targetObj[key] as string[])[index] === '');
+				if (untranslatedArray.length > 0) {
+					patch[key] = untranslatedArray;
+				}
 			} else if (
 				typeof sourceValue === 'object' &&
 				sourceValue !== null &&

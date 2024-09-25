@@ -214,10 +214,10 @@ test('i18next functions', async (t) => {
 			key2: ['', 'translated2b'],
 		};
 
-		const result = extractUntranslatedDiff(source, target);
+		const result = extractUntranslatedDiff({ source, target });
 		assert.deepStrictEqual(result, {
-			key1: ['value1a', 'value1b', 'value1c'],
-			key2: ['value2a', 'value2b'],
+			key1: ['value1a', 'value1b'],
+			key2: ['value2a'],
 		});
 	});
 });
