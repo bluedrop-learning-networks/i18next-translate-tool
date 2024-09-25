@@ -24,6 +24,7 @@ export default function splitObject(
 		for (let i = 0; i < path.length - 1; i++) {
 			if (!(path[i] in target)) {
 				target[path[i]] = {};
+				currentCount++;
 			}
 			target = target[path[i]] as I18nextJsonMergePatch;
 		}
@@ -41,6 +42,7 @@ export default function splitObject(
 		for (const [key, value] of Object.entries(o)) {
 			const newPath = [...path, key];
 			if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+				addToCurrentObj(newPath, {});
 				processObject(value as I18nextJson, newPath);
 			} else {
 				addToCurrentObj(newPath, value);
