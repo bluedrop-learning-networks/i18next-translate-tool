@@ -12,11 +12,11 @@ function countProperties(obj: I18nextJsonMergePatch): number {
 }
 
 export default function splitObject(obj: I18nextJsonMergePatch, maxProperties: number): I18nextJsonMergePatch[] {
-  const result: I18nextJson[] = [];
-  let currentObj: I18nextJson = {};
+  const result: I18nextJsonMergePatch[] = [];
+  let currentObj: I18nextJsonMergePatch = {};
   let currentCount = 0;
 
-  function addToCurrentObj(key: string, value: any) {
+  function addToCurrentObj(path: string[], value: any) {
     const valuePropertyCount = typeof value === 'object' && value !== null && !Array.isArray(value)
       ? countProperties(value as I18nextJson)
       : 1;
@@ -29,7 +29,14 @@ export default function splitObject(obj: I18nextJsonMergePatch, maxProperties: n
       currentCount = 0;
     }
 
-    currentObj[key] = value;
+    let target = currentObj;
+    for (let i = 0; i < path.length - 1; i++) {
+      if (!(path[i] in target)) {
+        target[path[i]] = {};
+      }
+      target = target[path[i]] as I18nextJsonMergePatch;
+    }
+    target[path[path.length - 1]] = value;
     currentCount += valuePropertyCount;
 
     if (currentCount >= maxProperties) {
@@ -39,19 +46,20 @@ export default function splitObject(obj: I18nextJsonMergePatch, maxProperties: n
     }
   }
 
-  function processObject(o: I18nextJson) {
+  function processObject(o: I18nextJson, path: string[] = []) {
     for (const [key, value] of Object.entries(o)) {
+      const newPath = [...path, key];
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         if (countProperties(value as I18nextJson) > maxProperties) {
           const subObjects = splitObject(value as I18nextJson, maxProperties);
           subObjects.forEach((subObj, index) => {
-            addToCurrentObj(`${key}_part${index + 1}`, subObj);
+            addToCurrentObj([...newPath, `part${index + 1}`], subObj);
           });
         } else {
-          addToCurrentObj(key, value);
+          processObject(value as I18nextJson, newPath);
         }
       } else {
-        addToCurrentObj(key, value);
+        addToCurrentObj(newPath, value);
       }
     }
   }
