@@ -20,12 +20,6 @@ export default function splitObject(
 	let currentCount = 0;
 
 	function addToCurrentObj(path: string[], value: any) {
-		if (currentCount >= maxProperties) {
-			result.push(currentObj);
-			currentObj = {};
-			currentCount = 0;
-		}
-
 		let target = currentObj;
 		for (let i = 0; i < path.length - 1; i++) {
 			if (!(path[i] in target)) {
@@ -35,6 +29,12 @@ export default function splitObject(
 		}
 		target[path[path.length - 1]] = value;
 		currentCount++;
+
+		if (currentCount >= maxProperties) {
+			result.push(currentObj);
+			currentObj = {};
+			currentCount = 0;
+		}
 	}
 
 	function processObject(o: I18nextJson, path: string[] = []) {
