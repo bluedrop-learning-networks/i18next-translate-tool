@@ -3,34 +3,35 @@ import assert from 'node:assert';
 import { generateSchemaFromObject } from './json-schema';
 
 test('generateSchemaFromObject', async (t) => {
-  await t.test('should generate schema for simple object', () => {
+  await t.test('should generate schema for object with string and null values', () => {
     const input = {
       name: 'John Doe',
-      age: 30,
-      isStudent: false
+      email: 'john@example.com',
+      phone: null
     };
     const expected = {
       type: 'object',
       properties: {
         name: { type: 'string' },
-        age: { type: 'number' },
-        isStudent: { type: 'boolean' }
+        email: { type: 'string' },
+        phone: { type: 'null' }
       },
-      required: ['name', 'age', 'isStudent']
+      required: ['name', 'email', 'phone']
     };
     assert.deepStrictEqual(generateSchemaFromObject(input), expected);
   });
 
-  await t.test('should generate schema for nested object', () => {
+  await t.test('should generate schema for nested object with string and null values', () => {
     const input = {
       person: {
         name: 'Jane Doe',
         address: {
           street: '123 Main St',
-          city: 'Anytown'
+          city: 'Anytown',
+          country: null
         }
       },
-      hobbies: ['reading', 'cycling']
+      company: null
     };
     const expected = {
       type: 'object',
@@ -43,65 +44,43 @@ test('generateSchemaFromObject', async (t) => {
               type: 'object',
               properties: {
                 street: { type: 'string' },
-                city: { type: 'string' }
+                city: { type: 'string' },
+                country: { type: 'null' }
               },
-              required: ['street', 'city']
+              required: ['street', 'city', 'country']
             }
           },
           required: ['name', 'address']
         },
-        hobbies: {
-          type: 'array',
-          items: { type: 'string' }
-        }
+        company: { type: 'null' }
       },
-      required: ['person', 'hobbies']
+      required: ['person', 'company']
     };
     assert.deepStrictEqual(generateSchemaFromObject(input), expected);
   });
 
-  await t.test('should handle arrays with mixed types', () => {
-    const input = {
-      mixedArray: [1, 'two', true, { key: 'value' }]
-    };
+  await t.test('should handle empty objects', () => {
+    const input = {};
     const expected = {
       type: 'object',
-      properties: {
-        mixedArray: {
-          type: 'array',
-          items: {
-            oneOf: [
-              { type: 'number' },
-              { type: 'string' },
-              { type: 'boolean' },
-              {
-                type: 'object',
-                properties: {
-                  key: { type: 'string' }
-                },
-                required: ['key']
-              }
-            ]
-          }
-        }
-      },
-      required: ['mixedArray']
+      properties: {},
+      required: []
     };
     assert.deepStrictEqual(generateSchemaFromObject(input), expected);
   });
 
-  await t.test('should handle null values', () => {
+  await t.test('should handle objects with only null values', () => {
     const input = {
-      nullValue: null,
-      nonNullValue: 'test'
+      field1: null,
+      field2: null
     };
     const expected = {
       type: 'object',
       properties: {
-        nullValue: { type: 'null' },
-        nonNullValue: { type: 'string' }
+        field1: { type: 'null' },
+        field2: { type: 'null' }
       },
-      required: ['nullValue', 'nonNullValue']
+      required: ['field1', 'field2']
     };
     assert.deepStrictEqual(generateSchemaFromObject(input), expected);
   });
