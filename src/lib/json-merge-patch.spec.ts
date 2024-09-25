@@ -25,9 +25,9 @@ describe('deepMerge', () => {
 	});
 
 	it('should handle null and undefined values', () => {
-		const obj1 = { a: null, b: undefined, c: 1 };
-		const obj2 = { a: 2, b: 3, d: null };
+		const obj1 = { a: 1, b: 2, c: 3, d: 4 };
+		const obj2 = { a: null, b: undefined, e: 5 };
 		const result = jsonMergePatch(obj1, obj2);
-		assert.deepStrictEqual(result, { a: 2, b: 3, c: 1, d: null });
+		assert.deepStrictEqual(result, { b: 2, c: 3, d: 4, e: 5 });
 	});
 });
