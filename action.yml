@@ -19,6 +19,9 @@ inputs:
     description: 'Replace all existing translations'
     required: true
     default: 'false'
+  openai_api_key:
+    description: 'OpenAI API Key'
+    required: true
 
 runs:
   using: "composite"
@@ -30,7 +33,7 @@ runs:
 
     - name: Run translation
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
       run: |
         npx i18next-translate \
           --source "${{ inputs.sourcePattern }}" \
