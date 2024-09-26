@@ -72,7 +72,7 @@ export async function translateI18nextJson({
 	);
 
 	// Merge translated strings back into target
-	return translatedChunks.reduce((acc, chunk) => jsonMergePatch(acc, chunk), target);
+	return translatedChunks.reduce((acc: I18nextJson, chunk) => jsonMergePatch(acc, chunk), target);
 }
 
 // add test
@@ -85,7 +85,6 @@ export async function translateText({
 	targetLanguage: string;
 	text: string;
 }) {
-	// care for interpolation in the prompt
 	const systemPrompt = `
 	  You are a translation assistant. Translate all of the given text from '${sourceLanguage}' to '${targetLanguage}'.
 		Only provide the translation and nothing else. If the given text contains html/xml markup, leave it intact and do
