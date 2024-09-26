@@ -35,7 +35,7 @@ runs:
         npx i18next-translate \
           --source "${{ inputs.sourcePattern }}" \
           --source-lang "${{ inputs.sourceLanguage }}" \
-          --target ${{ inputs.targetLanguages }} \
+          $(echo "${{ inputs.targetLanguages }}" | tr ',' '\n' | sed 's/^/--target /' | tr '\n' ' ') \
           --output "${{ inputs.outputPattern }}" \
           ${{ inputs.replaceAll == 'true' && '--replace-all' || '' }}
       shell: bash
