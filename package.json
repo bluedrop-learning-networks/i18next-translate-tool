@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "translation-tool": "./dist/bin/cli.js"
+    "i18next-translate": "./dist/bin/cli.js"
   },
   "scripts": {
     "build": "tsc && chmod +x dist/bin/cli.js",
@@ -24,18 +24,17 @@
   "license": "ISC",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
+    "@types/glob": "^8.1.0",
     "@types/node": "^22.5.5",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2"
   },
   "dependencies": {
     "cmd-ts": "^0.13.0",
+    "glob": "^11.0.0",
     "i18next": "^23.15.1",
     "node": "^22.9.0",
     "openai": "^4.63.0"
-  },
-  "engines": {
-    "node": ">=20.0.0"
   },
   "packageManager": "pnpm@8.6.0"
 }

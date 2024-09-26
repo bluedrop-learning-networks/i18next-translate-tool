@@ -1,4 +1,4 @@
-import { I18nextJson, I18nextJsonMergePatch } from './types';
+import { I18nextJson, I18nextJsonMergePatch } from './types.js';
 
 export function jsonMergePatch(target: I18nextJson, patch: I18nextJsonMergePatch): I18nextJson {
 	const result: I18nextJson = { ...target };

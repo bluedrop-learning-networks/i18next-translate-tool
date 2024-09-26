@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { jsonMergePatch } from './json-merge-patch';
+import { jsonMergePatch } from './json-merge-patch.js';
 
 test('deepMerge', async (t) => {
 	await t.test('should merge two simple objects', () => {

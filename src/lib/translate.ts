@@ -1,10 +1,9 @@
-import { extractUntranslatedDiff } from './i18next';
-import { I18nextJson, I18nextJsonMergePatch } from './types';
-import { splitObject } from './split-object';
-import { jsonMergePatch } from './json-merge-patch';
-
 import OpenAI from 'openai';
-import { generateSchemaFromObject } from './json-schema';
+import { extractUntranslatedDiff } from './i18next.js';
+import { I18nextJson, I18nextJsonMergePatch } from './types.js';
+import { splitObject } from './split-object.js';
+import { jsonMergePatch } from './json-merge-patch.js';
+import { generateSchemaFromObject } from './json-schema.js';
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,

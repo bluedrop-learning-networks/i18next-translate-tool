@@ -1,4 +1,4 @@
-import { I18nextJsonMergePatch } from './types';
+import { I18nextJsonMergePatch } from './types.js';
 
 export function generateSchemaFromObject(obj: I18nextJsonMergePatch): any {
 	const schema: any = {

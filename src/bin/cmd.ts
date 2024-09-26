@@ -1,15 +1,6 @@
-import {
-	command,
-	flag,
-	string,
-	positional,
-	option,
-	multioption,
-	array,
-	boolean,
-} from 'cmd-ts';
+import { command, flag, string, option, multioption, array, boolean } from 'cmd-ts';
 import { readI18nextJson, writeI18nextJson, translateI18nextJson } from '../index.js';
-import glob from 'glob';
+import { glob } from 'glob';
 import path from 'path';
 
 export const i18nextTranslate = command({
@@ -47,7 +38,13 @@ export const i18nextTranslate = command({
 			defaultValue: () => false,
 		}),
 	},
-	handler: async ({ sourcePattern, sourceLanguage, targetLanguages, outputPattern, replaceAll }) => {
+	handler: async ({
+		sourcePattern,
+		sourceLanguage,
+		targetLanguages,
+		outputPattern,
+		replaceAll,
+	}) => {
 		try {
 			console.log('Starting translation process');
 			const sourceFiles = glob.sync(sourcePattern);
@@ -62,11 +59,20 @@ export const i18nextTranslate = command({
 				const sourceJson = await readI18nextJson({ filePath: sourceFile });
 				const sourceDir = path.dirname(sourceFile);
 
+				// log out number of strings to translate
+				// log out total number of tokens used + total cost
+				// test result to ensure that keys are the same as source
+				// compare keys and values between source and target (report on % same, missing, additional, etc.)
+				// throw an error if OPENAI_API_KEY not set
+				// add verbose mode to control log output?
+				// at least one target language must be provided
+				// write test for CLI
+				// write README
 				for (const targetLang of targetLanguages) {
 					const outputFile = outputPattern
 						.replace('<lang>', targetLang)
 						.replace('<dir>', sourceDir);
-					
+
 					let targetJson = replaceAll ? {} : await readI18nextJson({ filePath: outputFile });
 
 					const translatedJson = await translateI18nextJson({

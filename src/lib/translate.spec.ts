@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { translateI18nextJson } from './translate';
+import { translateI18nextJson } from './translate.js';
 
 // add more tests for translated content
 test('translate function', async (t) => {

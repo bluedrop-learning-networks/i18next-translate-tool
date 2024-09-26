@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { readI18nextJson, writeI18nextJson, extractUntranslatedDiff } from './i18next';
+import { readI18nextJson, writeI18nextJson, extractUntranslatedDiff } from './i18next.js';
 
 const testDir = path.join(process.cwd(), 'test-files');
 

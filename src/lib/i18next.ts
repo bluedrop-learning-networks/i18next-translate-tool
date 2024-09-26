@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-import { I18nextJson, I18nextJsonMergePatch } from './types';
+import { I18nextJson, I18nextJsonMergePatch } from './types.js';
 
 export async function readI18nextJson({ filePath }: { filePath: string }): Promise<I18nextJson> {
 	try {
@@ -30,7 +30,7 @@ export async function writeI18nextJson({
 							.reduce((sorted, key) => {
 								sorted[key] = value[key];
 								return sorted;
-							}, {});
+							}, {} as I18nextJson);
 					}
 					return value;
 				},

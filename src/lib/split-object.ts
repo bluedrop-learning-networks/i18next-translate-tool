@@ -1,4 +1,4 @@
-import { I18nextJson, I18nextJsonMergePatch } from './types';
+import { I18nextJson, I18nextJsonMergePatch } from './types.js';
 
 export function countProperties(obj: I18nextJsonMergePatch): number {
 	let count = 0;
@@ -38,7 +38,7 @@ export function splitObject(
 		}
 	}
 
-	function processObject(o: I18nextJson, path: string[] = []) {
+	function processObject(o: I18nextJsonMergePatch, path: string[] = []) {
 		for (const [key, value] of Object.entries(o)) {
 			const newPath = [...path, key];
 			if (typeof value === 'object' && value !== null && !Array.isArray(value)) {

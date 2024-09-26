@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { generateSchemaFromObject } from './json-schema';
+import { generateSchemaFromObject } from './json-schema.js';
 
 test('generateSchemaFromObject', async (t) => {
 	await t.test('should generate schema for object with string and null values', () => {
