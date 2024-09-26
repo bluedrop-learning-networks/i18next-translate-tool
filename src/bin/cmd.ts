@@ -8,7 +8,7 @@ import {
 	array,
 	boolean,
 } from 'cmd-ts';
-import { readI18nextJson, writeI18nextJson, translateI18nextJson } from '../index';
+import { readI18nextJson, writeI18nextJson, translateI18nextJson } from '../index.js';
 
 export const i18nextTranslate = command({
 	name: 'i18next-translate',
