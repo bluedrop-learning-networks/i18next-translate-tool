@@ -1,12 +1,15 @@
 {
-  "name": "translation-tool",
-  "version": "1.0.0",
+  "name": "@bluedrop-learning-networks/i18next-translate",
+  "version": "0.9.0",
   "description": "CLI tool for translating i18next locale files using AI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "i18next-translate": "./dist/bin/cli.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc && chmod +x dist/bin/cli.js",
     "test": "tsx --test 'src/**/*.spec.ts'",
@@ -20,7 +23,7 @@
     "cli",
     "ai"
   ],
-  "author": "",
+  "author": "Dónal Mac An Rí",
   "license": "ISC",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
@@ -33,7 +36,6 @@
     "cmd-ts": "^0.13.0",
     "glob": "^11.0.0",
     "i18next": "^23.15.1",
-    "node": "^22.9.0",
     "openai": "^4.63.0"
   },
   "packageManager": "pnpm@8.6.0"
