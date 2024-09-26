@@ -9,16 +9,18 @@ import {
 	boolean,
 } from 'cmd-ts';
 import { readI18nextJson, writeI18nextJson, translateI18nextJson } from '../index.js';
+import glob from 'glob';
+import path from 'path';
 
 export const i18nextTranslate = command({
 	name: 'i18next-translate',
 	description: 'Translate i18next JSON files',
 	args: {
-		sourceFile: option({
+		sourcePattern: option({
 			type: string,
 			long: 'source',
 			short: 's',
-			description: 'Path to the source language file',
+			description: 'Glob pattern for source language file(s)',
 		}),
 		targetLanguages: multioption({
 			type: array(string),
@@ -39,24 +41,38 @@ export const i18nextTranslate = command({
 			defaultValue: () => false,
 		}),
 	},
-	handler: async ({ sourceFile, targetLanguages, outputPattern, replaceAll }) => {
+	handler: async ({ sourcePattern, targetLanguages, outputPattern, replaceAll }) => {
 		try {
 			console.log('Starting translation process');
-			const sourceJson = await readI18nextJson({ filePath: sourceFile });
+			const sourceFiles = glob.sync(sourcePattern);
 
-			for (const targetLang of targetLanguages) {
-				const outputFile = outputPattern.replace('<lang>', targetLang);
-				let targetJson = replaceAll ? {} : await readI18nextJson({ filePath: outputFile });
+			if (sourceFiles.length === 0) {
+				console.error(`No files found matching pattern: ${sourcePattern}`);
+				return;
+			}
 
-				const translatedJson = await translateI18nextJson({
-					source: sourceJson,
-					sourceLanguage: 'en',
-					targetLanguage: targetLang,
-					target: targetJson,
-				});
+			for (const sourceFile of sourceFiles) {
+				console.log(`Processing source file: ${sourceFile}`);
+				const sourceJson = await readI18nextJson({ filePath: sourceFile });
+				const sourceDir = path.dirname(sourceFile);
 
-				await writeI18nextJson({ filePath: outputFile, data: translatedJson });
-				console.log(`Translated file written to: ${outputFile}`);
+				for (const targetLang of targetLanguages) {
+					const outputFile = outputPattern
+						.replace('<lang>', targetLang)
+						.replace('<dir>', sourceDir);
+					
+					let targetJson = replaceAll ? {} : await readI18nextJson({ filePath: outputFile });
+
+					const translatedJson = await translateI18nextJson({
+						source: sourceJson,
+						sourceLanguage: 'en',
+						targetLanguage: targetLang,
+						target: targetJson,
+					});
+
+					await writeI18nextJson({ filePath: outputFile, data: translatedJson });
+					console.log(`Translated file written to: ${outputFile}`);
+				}
 			}
 		} catch (error) {
 			console.error('Error during translation:', error);
