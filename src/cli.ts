@@ -9,8 +9,7 @@ import {
 	array,
 	boolean,
 } from 'cmd-ts';
-import { readI18nextJson, writeI18nextJson } from './lib/i18next';
-import { translate } from './lib/translate';
+import { readI18nextJson, writeI18nextJson, translateI18nextJson } from './lib/index';
 
 const translateCommand = command({
 	name: 'translate',
@@ -49,7 +48,7 @@ const translateCommand = command({
 				const outputFile = outputPattern.replace('<lang>', targetLang);
 				let targetJson = replaceAll ? {} : await readI18nextJson({ filePath: outputFile });
 
-				const translatedJson = await translate({
+				const translatedJson = await translateI18nextJson({
 					source: sourceJson,
 					sourceLanguage: 'en',
 					targetLanguage: targetLang,

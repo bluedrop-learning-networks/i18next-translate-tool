@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { splitObject, countProperties } from './split-object';
-import jsonMergePatch from './json-merge-patch';
+import { jsonMergePatch } from './json-merge-patch';
 
 describe('splitObject', () => {
 	it('should split a large object into smaller ones', () => {

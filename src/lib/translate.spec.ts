@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { translate } from './translate';
+import { translateI18nextJson } from './translate';
 
+// add more tests for translated content
 test('translate function', async (t) => {
 	await t.test('should translate source object to target language', async () => {
 		const source = {
@@ -14,7 +15,7 @@ test('translate function', async (t) => {
 		const sourceLanguage = 'en';
 		const targetLanguage = 'es';
 
-		const result = await translate(source, sourceLanguage, targetLanguage);
+		const result = await translateI18nextJson({ source, sourceLanguage, targetLanguage });
 
 		assert.deepStrictEqual(Object.keys(result), Object.keys(source));
 		assert.strictEqual(typeof result.greeting, 'string');
@@ -38,7 +39,7 @@ test('translate function', async (t) => {
 		const sourceLanguage = 'en';
 		const targetLanguage = 'es';
 
-		const result = await translate(source, sourceLanguage, targetLanguage, target);
+		const result = await translateI18nextJson({ source, sourceLanguage, targetLanguage, target });
 
 		assert.deepStrictEqual(Object.keys(result), Object.keys(source));
 		assert.strictEqual(result.greeting, 'Hola');
@@ -60,7 +61,7 @@ test('translate function', async (t) => {
 		const sourceLanguage = 'en';
 		const targetLanguage = 'fr';
 
-		const result = await translate(source, sourceLanguage, targetLanguage);
+		const result = await translateI18nextJson({ source, sourceLanguage, targetLanguage });
 
 		assert.deepStrictEqual(Object.keys(result), Object.keys(source));
 		assert.deepStrictEqual(Object.keys(result.nested), Object.keys(source.nested));
@@ -91,7 +92,7 @@ test('translate function', async (t) => {
 		const sourceLanguage = 'en';
 		const targetLanguage = 'es';
 
-		const result = await translate(source, sourceLanguage, targetLanguage, target);
+		const result = await translateI18nextJson({ source, sourceLanguage, targetLanguage, target });
 
 		assert.deepStrictEqual(Object.keys(result), Object.keys(source));
 		assert.strictEqual(result.keep, 'Mantener esto');
