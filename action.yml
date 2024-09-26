@@ -35,7 +35,7 @@ runs:
       env:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
       run: |
-        npx i18next-translate \
+        npx @bluedrop-learning-networks/i18next-translate \
           --source "${{ inputs.source_pattern }}" \
           --source-lang "${{ inputs.source_language }}" \
           $(echo "${{ inputs.target_languages }}" | tr ',' '\n' | sed 's/^/--target /' | tr '\n' ' ') \
