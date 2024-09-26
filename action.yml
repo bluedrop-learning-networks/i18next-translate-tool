@@ -2,20 +2,20 @@ name: 'Translate i18next Files'
 description: 'Translate i18next JSON files using AI and create a pull request with the changes'
 
 inputs:
-  sourcePattern:
+  source_pattern:
     description: 'Glob pattern for source language file(s)'
     required: true
-  sourceLanguage:
+  source_language:
     description: 'Source language code'
     required: true
     default: 'en'
-  targetLanguages:
+  target_languages:
     description: 'Comma-separated list of target language codes'
     required: true
-  outputPattern:
+  output_pattern:
     description: 'Output file pattern (e.g., "locales/<lang>.json")'
     required: true
-  replaceAll:
+  replace_all:
     description: 'Replace all existing translations'
     required: true
     default: 'false'
@@ -36,11 +36,11 @@ runs:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
       run: |
         npx i18next-translate \
-          --source "${{ inputs.sourcePattern }}" \
-          --source-lang "${{ inputs.sourceLanguage }}" \
-          $(echo "${{ inputs.targetLanguages }}" | tr ',' '\n' | sed 's/^/--target /' | tr '\n' ' ') \
-          --output "${{ inputs.outputPattern }}" \
-          ${{ inputs.replaceAll == 'true' && '--replace-all' || '' }}
+          --source "${{ inputs.source_pattern }}" \
+          --source-lang "${{ inputs.source_language }}" \
+          $(echo "${{ inputs.target_languages }}" | tr ',' '\n' | sed 's/^/--target /' | tr '\n' ' ') \
+          --output "${{ inputs.output_pattern }}" \
+          ${{ inputs.replace_all == 'true' && '--replace-all' || '' }}
       shell: bash
 
     - name: Create Pull Request
@@ -51,10 +51,10 @@ runs:
         body: |
           This PR updates translations for i18next JSON files.
 
-          Source pattern: ${{ inputs.sourcePattern }}
-          Source language: ${{ inputs.sourceLanguage }}
-          Target languages: ${{ inputs.targetLanguages }}
-          Output pattern: ${{ inputs.outputPattern }}
-          Replace all: ${{ inputs.replaceAll }}
+          Source pattern: ${{ inputs.source_pattern }}
+          Source language: ${{ inputs.source_language }}
+          Target languages: ${{ inputs.target_languages }}
+          Output pattern: ${{ inputs.output_pattern }}
+          Replace all: ${{ inputs.replace_all }}
         branch: update-translations
         delete-branch: true
