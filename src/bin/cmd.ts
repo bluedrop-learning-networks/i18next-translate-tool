@@ -22,6 +22,12 @@ export const i18nextTranslate = command({
 			short: 's',
 			description: 'Glob pattern for source language file(s)',
 		}),
+		sourceLanguage: option({
+			type: string,
+			long: 'source-lang',
+			description: 'Source language code (default: en)',
+			defaultValue: () => 'en',
+		}),
 		targetLanguages: multioption({
 			type: array(string),
 			long: 'target',
@@ -41,7 +47,7 @@ export const i18nextTranslate = command({
 			defaultValue: () => false,
 		}),
 	},
-	handler: async ({ sourcePattern, targetLanguages, outputPattern, replaceAll }) => {
+	handler: async ({ sourcePattern, sourceLanguage, targetLanguages, outputPattern, replaceAll }) => {
 		try {
 			console.log('Starting translation process');
 			const sourceFiles = glob.sync(sourcePattern);
@@ -65,7 +71,7 @@ export const i18nextTranslate = command({
 
 					const translatedJson = await translateI18nextJson({
 						source: sourceJson,
-						sourceLanguage: 'en',
+						sourceLanguage,
 						targetLanguage: targetLang,
 						target: targetJson,
 					});
